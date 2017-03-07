@@ -52,6 +52,23 @@ def fatsortAvailable(verbose, quiet):
         # fatsort not found
         return False
 
+def requestRootAccess(verbose, quiet):
+    """
+    Request root access if we don't already have it. If we obtain it,
+    restart script as root but don't update user credentials
+    """
+    # Check if we're root
+    euid = os.geteuid()
+
+    if euid != 0:
+        # We aren't root. Let's run as root
+        args = ['sudo', '-k', sys.executable] + sys.argv + [os.environ]
+        # Replace currently-running process with root-access process
+        os.execlpe('sudo', *args)
+    else:
+        # We're already root
+        return True
+
 
 
 if __name__ == '__main__':
@@ -84,11 +101,15 @@ if __name__ == '__main__':
 
     # Get root access if we don't have it already, but don't update user's
     # cached credentials
-    euid = os.geteuid()
-    if euid != 0:
-        args = ['sudo', '-k', sys.executable] + sys.argv + [os.environ]
-        # Replace currently-running process with root-access process
-        os.execlpe('sudo', *args)
+    if verbose:
+        print("Checking root access . . .")
+
+    requestRootAccess(verbose, quiet)
+
+    if verbose:
+        print("Running as root")
+
+
     # Confirm that fatsort is installed
     if verbose:
         print("Checking if fatsort is available . . .")
