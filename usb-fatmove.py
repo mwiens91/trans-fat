@@ -13,7 +13,11 @@
 import argparse
 import os
 import sys
+import subprocess
 import distutils.util
+
+# Name of the program
+NAME__ = "usb-fatmove"
 
 def prompt(query):
     """
@@ -30,6 +34,24 @@ def prompt(query):
         sys.stdout.write("Please answer with y/n\n")
         return prompt(query)
     return result
+
+def fatsortAvailable(verbose, quiet):
+    """
+    Check to see if fatsort is available on the system.
+    Returns true or false.
+    """
+    fatCheck = subprocess.Popen(["bash", "-c", "type fatsort"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL)
+    exitCode = fatCheck.wait()
+
+    if exitCode == 0:
+        # fatsort successfully found
+        return True
+    else:
+        # fatsort not found
+        return False
+
 
 
 if __name__ == '__main__':
@@ -55,6 +77,11 @@ if __name__ == '__main__':
             action="store_true")
     args = parser.parse_args()
 
+    # Unpack some arguments
+    verbose = args.verbose
+    quiet = args.quiet
+
+
     # Get root access if we don't have it already, but don't update user's
     # cached credentials
     euid = os.geteuid()
@@ -62,6 +89,20 @@ if __name__ == '__main__':
         args = ['sudo', '-k', sys.executable] + sys.argv + [os.environ]
         # Replace currently-running process with root-access process
         os.execlpe('sudo', *args)
+    # Confirm that fatsort is installed
+    if verbose:
+        print("Checking if fatsort is available . . .")
+
+    if fatsortAvailable(verbose, quiet):
+        # fatsort available
+        if verbose:
+            print("fatsort is available")
+    else:
+        # fatsort unavailable
+        print("ERROR: fatsort not found!", file=sys.stderr)
+        print("Aborting %s" % NAME__)
+        sys.exit(1)
+
 
     # Find which drive we need to write to
     # lsblk -d -o NAME,MODEL,SIZE,HOTPLUG
