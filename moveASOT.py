@@ -25,7 +25,10 @@ if __name__ == '__main__':
             type=str,
             help="Relative ASOT directory paths")
     parser.add_argument("--verbose",
-            help="Give lots of output",
+            help="Give maximal output",
+            action="store_true")
+    parser.add_argument("--quiet",
+            help="Give minimal output",
             action="store_true")
     args = parser.parse_args()
 
