@@ -33,11 +33,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Get root access if we don't have it already
+    # but don't update user's cached credentials
     euid = os.geteuid()
     if euid != 0:
-        args = ['sudo', sys.executable] + sys.argv + [os.environ]
+        args = ['sudo', '-k', sys.executable] + sys.argv + [os.environ]
         # Replace currently-running process with root-access process
         os.execlpe('sudo', *args)
-
-    # Clean-up: reset sudo-timestamp
-    os.system("sudo -k")
