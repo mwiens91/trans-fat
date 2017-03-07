@@ -13,6 +13,24 @@
 import argparse
 import os
 import sys
+import distutils.util
+
+def prompt(query):
+    """
+    A simple function to ask yes/no questions to stdout
+    on the command line. Credit goes to Matt Stevenson. See:
+    http://mattoc.com/python-yes-no-prompt-cli.html
+    """
+    sys.stdout.write("%s [y/n]: " % query)
+    val = input().lower()
+    try:
+        result = distutils.util.strtobool(val)
+    except ValueError:
+        # Result no good! Ask again.
+        sys.stdout.write("Please answer with y/n\n")
+        return prompt(query)
+    return result
+
 
 if __name__ == '__main__':
 
