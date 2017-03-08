@@ -72,17 +72,23 @@ def requestRootAccess(verbose, quiet):
 
 def findDeviceLocation(destinationLoc, verbose, quiet):
     """
-    Find device location of destination drive given a string
-    containing the mount location.
+    Find device and mount location of destination drive given a string
+    containing the destination location. Will prompt with list of possible
+    devices if it cannot find device and mount location automatically.
 
     Inputs:
     destinationLoc: path supplied to destination file or directory.
-        Should contain the mount location as a subset of its
-        directory path.
+        Should contain the mount location as a subset of its directory path.
 
-    NOTE what if there are no fat devices?
-    NOTE what if there's only one device?
+    Returns a tuple containing device location and mount location strings or a
+    tuple of 2 empty strings if no device could be found.
     """
+    # Make sure destinationLoc is absolute path
+    destinationLoc = os.path.abspath(destinationLoc)
+
+
+    # Get list of FAT devices
+
     bashListCmd = "mount -t vfat | cut -f 1,3 -d ' '"
     deviceListProcess = subprocess.Popen(["bash", "-c", bashListCmd],
                         stdout=subprocess.PIPE)
@@ -90,24 +96,67 @@ def findDeviceLocation(destinationLoc, verbose, quiet):
     # Get the raw byte string of the stdout from the above process and decode
     # it according to the ASCII character set
     deviceString = deviceListProcess.communicate()[0].decode('ascii')
+    deviceString = deviceString.strip()
+
+    # Check if any FAT devices were found
+    if deviceString == '':
+        # No FAT devices found, return empty string
+        return ('','')
 
     # Split deviceString so we get a separate string for each device
     deviceList = deviceString.split('\n')
 
-    # Enumerate each device
-    deviceListEnum = ["[%d] %s" % (i, deviceList[i-1])
-                            for i in range(1,len(deviceList))]
-    # Add option to abort
-    deviceListEnum.insert(0, "[0] abort!")
+    # For each device, split into device location and mount location.
+    # So in deviceListSep, deviceListSep[i][0] gives the device location of the
+    # ith device and deviceListSep[i][1] gives the mount location of the ith
+    # device
+    deviceListSep = [deviceList[i].split() for i in range(len(deviceList))]
 
-    # Prompt user for which device to use
-    print("Mounted FAT devices:", end='\n\n')
-    print(*deviceListEnum, sep='\n', end='\n\n')
 
-    input("Drive to transfer to or abort [0-%d]: " % (len(deviceListEnum)-1))
+    # Test if destinationLoc matches any mount locations
 
-    return
+    for i in range(len(deviceList)):
+        # Find common path of destination location and mount location of the
+        # ith device
+        commonpath_ = os.path.commonpath([deviceListSep[i][1], destinationLoc])
 
+        if commonpath_ == deviceListSep[i][1]:
+            # Found a match! Return device and mount location
+            return (deviceListSep[i][0], deviceListSep[i][1])
+    else:
+        if not quiet:
+            # Something went wrong with the automation: if not set to quiet
+            # mode, ask user if any of the FAT devices found match the target
+
+            # Enumerate each device
+            deviceListEnum = ["[%d] %s" % (i, deviceList[i-1])
+                                     for i in range(1,len(deviceList)+1)]
+            # Add option to abort
+            deviceListEnum.insert(0, "[0] abort!")
+
+            # Prompt user for which device to use
+            if verbose:
+                print("Failed to find device automatically!", end='\n\n')
+            print("Mounted FAT devices:", end='\n\n')
+            print(*deviceListEnum, sep='\n', end='\n\n')
+
+            ans = int(input("Drive to transfer to or abort [0-%d]: " %
+                                                (len(deviceListEnum)-1)))
+
+            # Return appropriate device and mount strings
+            if ans == 0:
+                # User selected abort, so return empty strings
+                return ('','')
+            elif ans > len(deviceListEnum)-1:
+                if not quiet:
+                    print("ERROR: invalid index", file=sys.stderr)
+                return ('','')
+            else:
+                # Return requested device and mount location strings
+                return (deviceListSep[ans - 1][0], deviceListSep[ans - 1][1])
+        else:
+            # Quiet mode is on, just return an empty string
+            return ('','')
 
 
 if __name__ == '__main__':
@@ -139,8 +188,6 @@ if __name__ == '__main__':
     verbose = args.verbose
     quiet = args.quiet
 
-#   used for testing findDeviceLocation function. Remove later
-    findDeviceLocation(args.source, verbose, quiet)
 
     # Get root access if we don't have it already, but don't update user's
     # cached credentials
@@ -168,6 +215,18 @@ if __name__ == '__main__':
         sys.exit(1)
 
 
-    # Find which drive we need to write to
-    # lsblk -d -o NAME,MODEL,SIZE,HOTPLUG
-    # info lsblk
+    # Find device and mount location corresponding to provided destination
+    if verbose:
+        print("Finding device and mount location containing %s . . ." %
+                   args.destination, end='\n\n')
+
+    deviceLoc, mountLoc = findDeviceLocation(args.destination, verbose, quiet)
+
+    if deviceLoc == '':
+        print("ERROR: no FAT device found!", file=sys.stderr)
+        print("Aborting %s" % NAME__)
+        sys.exit(1)
+    else:
+        if verbose:
+            print("Found device and mount locations:\n%s\n%s" %
+                    (deviceLoc, mountLoc), end='\n\n')
