@@ -19,6 +19,7 @@ import distutils.util
 # Name of the program
 NAME__ = "usb-fatmove"
 
+
 def prompt(query):
     """
     A simple function to ask yes/no questions to stdout
@@ -69,13 +70,18 @@ def requestRootAccess(verbose, quiet):
         # We're already root
         return
 
-def findUSBDrive(verbose, quiet):
+def findDeviceLocation(destinationLoc, verbose, quiet):
     """
-    Find USB drive to transfer to. Filters list of partitions
-    mounted to only those with FAT filesystems, then asks the
-    user which device to transfer to.
+    Find device location of destination drive given a string
+    containing the mount location.
+
+    Inputs:
+    destinationLoc: path supplied to destination file or directory.
+        Should contain the mount location as a subset of its
+        directory path.
 
     NOTE what if there are no fat devices?
+    NOTE what if there's only one device?
     """
     bashListCmd = "mount -t vfat | cut -f 1,3 -d ' '"
     deviceListProcess = subprocess.Popen(["bash", "-c", bashListCmd],
@@ -91,12 +97,14 @@ def findUSBDrive(verbose, quiet):
     # Enumerate each device
     deviceListEnum = ["[%d] %s" % (i, deviceList[i-1])
                             for i in range(1,len(deviceList))]
+    # Add option to abort
+    deviceListEnum.insert(0, "[0] abort!")
 
     # Prompt user for which device to use
     print("Mounted FAT devices:", end='\n\n')
     print(*deviceListEnum, sep='\n', end='\n\n')
 
-    input("Drive to transfer to [1-%d]: " % len(deviceListEnum))
+    input("Drive to transfer to or abort [0-%d]: " % (len(deviceListEnum)-1))
 
     return
 
@@ -107,15 +115,17 @@ if __name__ == '__main__':
     # Parse input arguments
     parser = argparse.ArgumentParser(
             description="alkjsdf")
-    parser.add_argument("dirs",
-            metavar="musicdirs",
-            nargs='+',
+    parser.add_argument("source",
             type=str,
-            help="Relative path to music-containing directory (no depth" +
-                    " restriction)")
+            help="Relative path to source directory or file")
+    parser.add_argument("destination",
+            type=str,
+            help="Relative path to destination directory or file")
+    parser.add_argument("--default",
+            help="Ignore config file and use default settings",
+            action="store_true")
     parser.add_argument("--armin",
-            help="Use settings specialized to transfering baby967 rips of" +
-                    " Armin Van Buuren's A State Of Trance show",
+            help="Use 'armin' config settings specified in config file",
             action="store_true")
     parser.add_argument("--verbose",
             help="Give maximal output",
@@ -129,8 +139,8 @@ if __name__ == '__main__':
     verbose = args.verbose
     quiet = args.quiet
 
-#   used for testing findUSBDrive function. Remove later
-#    findUSBDrive(verbose, quiet) 
+#   used for testing findDeviceLocation function. Remove later
+    findDeviceLocation(args.source, verbose, quiet)
 
     # Get root access if we don't have it already, but don't update user's
     # cached credentials
