@@ -78,7 +78,6 @@ def findDeviceLocation(destinationLoc, verbose, quiet):
 
     Inputs:
     destinationLoc: path supplied to destination file or directory.
-        Should contain the mount location as a subset of its directory path.
 
     Returns a tuple containing device location and mount location strings or a
     tuple of 2 empty strings if no device could be found.
