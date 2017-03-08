@@ -55,7 +55,7 @@ def fatsortAvailable(verbose, quiet):
 def requestRootAccess(verbose, quiet):
     """
     Request root access if we don't already have it. If we obtain it,
-    restart script as root but don't update user credentials
+    restart script as root but don't update user credentials.
     """
     # Check if we're root
     euid = os.geteuid()
@@ -67,7 +67,7 @@ def requestRootAccess(verbose, quiet):
         os.execlpe('sudo', *args)
     else:
         # We're already root
-        return True
+        return
 
 def findUSBDrive(verbose, quiet):
     """
@@ -96,7 +96,7 @@ def findUSBDrive(verbose, quiet):
     print("Mounted FAT devices:", end='\n\n')
     print(*deviceListEnum, sep='\n', end='\n\n')
 
-    input("State drive to transfer to [1-%d]: " % len(deviceListEnum))
+    input("Drive to transfer to [1-%d]: " % len(deviceListEnum))
 
     return
 
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
             description="alkjsdf")
     parser.add_argument("dirs",
-            metavar="musicdir",
+            metavar="musicdirs",
             nargs='+',
             type=str,
             help="Relative path to music-containing directory (no depth" +
