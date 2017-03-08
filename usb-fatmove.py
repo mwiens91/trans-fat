@@ -197,7 +197,7 @@ if __name__ == '__main__':
     requestRootAccess(verbose, quiet)
 
     if verbose:
-        print("Running as root")
+        print("Running as root", end='\n\n')
 
 
     # Confirm that fatsort is installed
@@ -207,7 +207,7 @@ if __name__ == '__main__':
     if fatsortAvailable(verbose, quiet):
         # fatsort available
         if verbose:
-            print("fatsort is available")
+            print("fatsort is available", end='\n\n')
     else:
         # fatsort unavailable
         print("ERROR: fatsort not found!", file=sys.stderr)
