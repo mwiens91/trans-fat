@@ -69,6 +69,37 @@ def requestRootAccess(verbose, quiet):
         # We're already root
         return True
 
+def findUSBDrive(verbose, quiet):
+    """
+    Find USB drive to transfer to. Filters list of partitions
+    mounted to only those with FAT filesystems, then asks the
+    user which device to transfer to.
+
+    NOTE what if there are no fat devices?
+    """
+    bashListCmd = "mount -t vfat | cut -f 1,3 -d ' '"
+    deviceListProcess = subprocess.Popen(["bash", "-c", bashListCmd],
+                        stdout=subprocess.PIPE)
+
+    # Get the raw byte string of the stdout from the above process and decode
+    # it according to the ASCII character set
+    deviceString = deviceListProcess.communicate()[0].decode('ascii')
+
+    # Split deviceString so we get a separate string for each device
+    deviceList = deviceString.split('\n')
+
+    # Enumerate each device
+    deviceListEnum = ["[%d] %s" % (i, deviceList[i-1])
+                            for i in range(1,len(deviceList))]
+
+    # Prompt user for which device to use
+    print("Mounted FAT devices:", end='\n\n')
+    print(*deviceListEnum, sep='\n', end='\n\n')
+
+    input("State drive to transfer to [1-%d]: " % len(deviceListEnum))
+
+    return
+
 
 
 if __name__ == '__main__':
@@ -98,6 +129,8 @@ if __name__ == '__main__':
     verbose = args.verbose
     quiet = args.quiet
 
+#   used for testing findUSBDrive function. Remove later
+#    findUSBDrive(verbose, quiet) 
 
     # Get root access if we don't have it already, but don't update user's
     # cached credentials
