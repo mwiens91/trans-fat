@@ -227,5 +227,5 @@ if __name__ == '__main__':
         sys.exit(1)
     else:
         if verbose:
-            print("Found device and mount locations:\n%s\n%s" %
+            print("Found device and mount locations:\ndevice: %s\nmount: %s" %
                     (deviceLoc, mountLoc), end='\n\n')
