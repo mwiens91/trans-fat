@@ -164,6 +164,7 @@ if __name__ == '__main__':
 
     # Parse input arguments
     parser = argparse.ArgumentParser(
+            prog=NAME__,
             description="alkjsdf")
     parser.add_argument("source",
             type=str,
@@ -171,16 +172,29 @@ if __name__ == '__main__':
     parser.add_argument("destination",
             type=str,
             help="Relative path to destination directory or file")
+    parser.add_argument("-f", "--no-fatsort",
+            help="Do not unmount, fatsort, and remount",
+            action="store_true")
+    parser.add_argument("-n", "--non-interactive",
+            help="Abort whenever there would otherwise be prompt",
+            action="store_true")
+    parser.add_argument("--version",
+            action='version',
+            version="%(prog)s 0.0.1")
+    parser.add_argument("--init-file",
+            help="Use specified config file",
+            type=str,
+            default="config.ini")
     parser.add_argument("--default",
-            help="Ignore config file and use default settings",
+            help="Use default settings from config file",
             action="store_true")
     parser.add_argument("--armin",
-            help="Use 'armin' config settings specified in config file",
+            help="Use 'ARMIN' settings from config file",
             action="store_true")
     parser.add_argument("--verbose",
             help="Give maximal output",
             action="store_true")
-    parser.add_argument("--quiet",
+    parser.add_argument("--quiet", "--silent",
             help="Give minimal output",
             action="store_true")
     args = parser.parse_args()
