@@ -141,6 +141,8 @@ def findDeviceLocation(destinationLoc, verbose, quiet):
 
             ans = int(input("Drive to transfer to or abort [0-%d]: " %
                                                 (len(deviceListEnum)-1)))
+            print()
+
 
             # Return appropriate device and mount strings
             if ans == 0:
@@ -217,7 +219,7 @@ if __name__ == '__main__':
     # Find device and mount location corresponding to provided destination
     if verbose:
         print("Finding device and mount location containing %s . . ." %
-                   args.destination, end='\n\n')
+                   args.destination, end='\n')
 
     deviceLoc, mountLoc = findDeviceLocation(args.destination, verbose, quiet)
 
