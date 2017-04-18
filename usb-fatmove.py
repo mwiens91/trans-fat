@@ -11,6 +11,7 @@
 # mount drive back
 
 import argparse
+import configparser
 import os
 import sys
 import subprocess
@@ -204,11 +205,30 @@ if __name__ == '__main__':
             action="store_true")
     args = parser.parse_args()
 
-    # Unpack some arguments
+    # Unpack frequently used runtime arguments
     noninteractive = args.non_interactive
     nofatsort = args.no_fatsort
     verbose = args.verbose
     quiet = args.quiet
+
+
+    # Parse config file
+    config = configparser.ConfigParser()
+    config.read(args.config_file)
+
+    # Select which section of settings to use. The resulting
+    # 'configparser.SectionProxy' behaves quite similarly to a dictionary.
+    # Please see the config file specified by the runtime argument
+    # '--config-file' to see the actual options
+    if args.default:
+        # Use DEFAULT section of config file
+        settings = config['DEFAULT']
+    elif args.armin:
+        # Use ARMIN section of config file
+        settings = config['ARMIN']
+    else:
+        # Use user section of config file
+        settings = config['user']
 
 
     # Get root access if we don't have it already, but don't update user's
