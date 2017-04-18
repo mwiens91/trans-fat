@@ -74,13 +74,16 @@ def findDeviceLocation(destinationLoc, verbose, quiet):
     """
     Find device and mount location of destination drive given a string
     containing the destination location. Will prompt with list of possible
-    devices if it cannot find device and mount location automatically.
+    devices if it cannot find device and mount location automatically (provided
+    quiet option is not enabled).
 
     Inputs:
-    destinationLoc: path supplied to destination file or directory.
+    destinationLoc: string containing path to destination file or directory.
+    verbose: boolean toggling whether to give small amount of extra output
+    quiet: boolean toggling whether to omit interactive error resolution
 
-    Returns a tuple containing device location and mount location strings or a
-    tuple of 2 empty strings if no device could be found.
+    Returns a tuple containing device location and mount location as strings or
+    a tuple of 2 empty strings if no device could be found.
     """
     # Make sure destinationLoc is absolute path
     destinationLoc = os.path.abspath(destinationLoc)
