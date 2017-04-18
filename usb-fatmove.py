@@ -168,7 +168,7 @@ if __name__ == '__main__':
     # Parse input arguments
     parser = argparse.ArgumentParser(
             prog=NAME__,
-            description="alkjsdf")
+            description="<program description goes here>")
     parser.add_argument("source",
             type=str,
             help="Relative path to source directory or file")
@@ -179,12 +179,12 @@ if __name__ == '__main__':
             help="Do not unmount, fatsort, and remount",
             action="store_true")
     parser.add_argument("-n", "--non-interactive",
-            help="Abort whenever there would otherwise be prompt",
+            help="Abort instead of interactively resolving errors",
             action="store_true")
     parser.add_argument("--version",
             action='version',
             version="%(prog)s 0.0.1")
-    parser.add_argument("--init-file",
+    parser.add_argument("--config-file",
             help="Use specified config file",
             type=str,
             default="config.ini")
