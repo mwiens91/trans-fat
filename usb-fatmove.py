@@ -206,35 +206,40 @@ if __name__ == '__main__':
 
     # Unpack some arguments
     noninteractive = args.non_interactive
+    nofatsort = args.no_fatsort
     verbose = args.verbose
     quiet = args.quiet
 
 
     # Get root access if we don't have it already, but don't update user's
     # cached credentials
-    if verbose:
-        print("Checking root access . . .")
 
-    requestRootAccess(verbose, quiet)
+    # No need for root if we're not (un)mounting and running fatsort
+    if not nofatsort:
+        if verbose:
+           print("Checking root access . . .")
 
-    if verbose:
-        print("Running as root", end='\n\n')
+        requestRootAccess(verbose, quiet)
+
+        if verbose:
+            print("Running as root", end='\n\n')
 
 
     # Confirm that fatsort is installed
-    if verbose:
-        print("Checking if fatsort is available . . .")
-
-    if fatsortAvailable(verbose, quiet):
-        # fatsort available
+    if not nofatsort:
         if verbose:
-            print("fatsort is available", end='\n\n')
-    else:
-        # fatsort unavailable
-        if not quiet:
-            print("ERROR: fatsort not found!", file=sys.stderr)
-        print("Aborting %s" % NAME__)
-        sys.exit(1)
+            print("Checking if fatsort is available . . .")
+
+        if fatsortAvailable(verbose, quiet):
+            # fatsort available
+            if verbose:
+                print("fatsort is available", end='\n\n')
+        else:
+            # fatsort unavailable
+            if not quiet:
+                print("ERROR: fatsort not found!", file=sys.stderr)
+            print("Aborting %s" % NAME__)
+            sys.exit(1)
 
 
     # Find device and mount location corresponding to provided destination
