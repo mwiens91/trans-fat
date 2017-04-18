@@ -231,7 +231,8 @@ if __name__ == '__main__':
             print("fatsort is available", end='\n\n')
     else:
         # fatsort unavailable
-        print("ERROR: fatsort not found!", file=sys.stderr)
+        if not quiet:
+            print("ERROR: fatsort not found!", file=sys.stderr)
         print("Aborting %s" % NAME__)
         sys.exit(1)
 
@@ -245,7 +246,8 @@ if __name__ == '__main__':
                                     noninteractive, verbose, quiet)
 
     if deviceLoc == '':
-        print("ERROR: no FAT device found!", file=sys.stderr)
+        if not quiet:
+            print("ERROR: no FAT device found!", file=sys.stderr)
         print("Aborting %s" % NAME__)
         sys.exit(1)
     else:
