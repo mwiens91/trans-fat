@@ -70,7 +70,7 @@ def requestRootAccess(verbose, quiet):
         # We're already root
         return
 
-def findDeviceLocation(destinationLoc, verbose, quiet):
+def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
     """
     Find device and mount location of destination drive given a string
     containing the destination location. Will prompt with list of possible
@@ -79,8 +79,9 @@ def findDeviceLocation(destinationLoc, verbose, quiet):
 
     Inputs:
     destinationLoc: string containing path to destination file or directory.
+    noninteractive: boolean toggling whether to omit interactive error resolution
     verbose: boolean toggling whether to give small amount of extra output
-    quiet: boolean toggling whether to omit interactive error resolution
+    quiet: boolean toggling whether to omit small amount of error output
 
     Returns a tuple containing device location and mount location as strings or
     a tuple of 2 empty strings if no device could be found.
@@ -126,9 +127,10 @@ def findDeviceLocation(destinationLoc, verbose, quiet):
             # Found a match! Return device and mount location
             return (deviceListSep[i][0], deviceListSep[i][1])
     else:
-        if not quiet:
-            # Something went wrong with the automation: if not set to quiet
-            # mode, ask user if any of the FAT devices found match the target
+        if not noninteractive:
+            # Something went wrong with the automation: if not set to
+            # non-interactive mode, ask user if any of the FAT devices found
+            # match the target
 
             # Enumerate each device
             deviceListEnum = ["[%d] %s" % (i, deviceList[i-1])
@@ -159,7 +161,7 @@ def findDeviceLocation(destinationLoc, verbose, quiet):
                 # Return requested device and mount location strings
                 return (deviceListSep[ans - 1][0], deviceListSep[ans - 1][1])
         else:
-            # Quiet mode is on, just return an empty string
+            # Non-interactive mode is on, just return an empty string
             return ('','')
 
 
@@ -203,6 +205,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Unpack some arguments
+    noninteractive = args.non_interactive
     verbose = args.verbose
     quiet = args.quiet
 
@@ -238,7 +241,8 @@ if __name__ == '__main__':
         print("Finding device and mount location containing %s . . ." %
                    args.destination, end='\n')
 
-    deviceLoc, mountLoc = findDeviceLocation(args.destination, verbose, quiet)
+    deviceLoc, mountLoc = findDeviceLocation(args.destination,
+                                    noninteractive, verbose, quiet)
 
     if deviceLoc == '':
         print("ERROR: no FAT device found!", file=sys.stderr)
