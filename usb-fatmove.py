@@ -269,7 +269,15 @@ if __name__ == '__main__':
 
     # Parse config file
     config = configparser.ConfigParser()
-    config.read(args.config_file)
+
+    # Try reading file specified, and exit if failure
+    if config.read(args.config_file) == []:
+        if not quiet:
+            print("ERROR: '" + args.config_file +
+                    "' is not a valid config file!", file=sys.stderr)
+        print("Aborting %s" % NAME__)
+        sys.exit(1)
+
 
     # Select which section of settings to use. The resulting
     # 'configparser.SectionProxy' behaves quite similarly to a dictionary.
