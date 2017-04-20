@@ -60,22 +60,71 @@ def fatsortAvailable(verbose, quiet):
         # fatsort not found
         return False
 
-def requestRootAccess(verbose, quiet):
+
+def requestRootAccess(configsettings, noninteractive, verbose, quiet):
     """
-    Request root access if we don't already have it. If we obtain it,
-    restart script as root but don't update user credentials.
+    Request root access if we don't already have it. If we obtain it, restart
+    script as root and update user credentials according to config settings
+
+    Inputs:
+    configsettings: dictionary-like type 'configparser.SectionProxy' containing
+        settings loaded from config file
+    noninteractive: boolean toggling whether to exit script if root credentials
+        not already cached
+    verbose: boolean toggling whether to give small amount of extra output
+    quiet: [does nothing here so far]
+
+    Returns true if everything went okay, and false otherwise.
     """
-    # Check if we're root
+    # Check if we're already running as root; return if so
     euid = os.geteuid()
 
-    if euid != 0:
-        # We aren't root. Let's run as root
-        args = ['sudo', '-k', sys.executable] + sys.argv + [os.environ]
-        # Replace currently-running process with root-access process
-        os.execlpe('sudo', *args)
-    else:
-        # We're already root
-        return
+    if euid == 0:
+        # Already running as root
+        return True
+
+    # Check if we have root passphrase cached already; exit code of the Popen
+    # command will be non-zero if we don't have credentials, and will be zero
+    # if we do
+    rootCheck = subprocess.Popen(["sudo", "-n", "echo"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL)
+    badExitCode = rootCheck.wait()
+
+    # If we're running non-interactively and we don't have access to root
+    # credentials, exit program
+    if noninteractive and badExitCode:
+        return False
+
+
+    # Assume we cache credentials by default (i.e., we run 'sudo' instead of
+    # 'sudo -k'); change this below if needed
+    cacheOption = []
+
+    # Determine whether to cache credentials in proceeding block if we don't
+    # already have access to root credentials
+    if badExitCode:
+        # Get config settings for caching root credentials
+        cache_ = configsettings['UpdateUserCredentials']
+
+        # Prompt whether to cache root credentials if config file says to
+        if cache_ == PROMPT:
+            # Prompt and store the boolean result in cache_
+            cache_ = prompt("Remember root access passphrase?")
+
+        if cache_ == NO:
+            # Run below command with 'sudo -k' vs 'sudo'
+            cacheOption = ['-k']
+
+    # Let's run as root
+    if verbose:
+        print("Restarting as root . . .")
+
+    args = (['sudo'] + cacheOption + [sys.executable]
+                + sys.argv + [os.environ])
+    # Replace currently-running process with root-access process
+    os.execlpe('sudo', *args)
+
 
 def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
     """
@@ -236,18 +285,26 @@ if __name__ == '__main__':
         # Use user section of config file
         configsettings = config['user']
 
-    # Get root access if we don't have it already, but don't update user's
-    # cached credentials
 
-    # No need for root if we're not (un)mounting and running fatsort
+    # Get root access if we don't have it already, and update user's cached
+    # credentials according to the config file. Skip this if we're not
+    # fatsorting (since in this case we won't need root access)
     if not nofatsort:
         if verbose:
            print("Checking root access . . .")
 
-        requestRootAccess(verbose, quiet)
+        rootAccess = (
+            requestRootAccess(configsettings, noninteractive, verbose, quiet))
 
-        if verbose:
-            print("Running as root", end='\n\n')
+        if not rootAccess:
+            # Failed to run as root
+            if not quiet:
+                print("ERROR: failed to run as root!", file=sys.stderr)
+            print("Aborting %s" % NAME__)
+            sys.exit(1)
+        else:
+            if verbose:
+                print("Running as root", end='\n\n')
 
 
     # Confirm that fatsort is installed
