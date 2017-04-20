@@ -20,6 +20,11 @@ import distutils.util
 # Name of the program
 NAME__ = "usb-fatmove"
 
+# Constants mirrored in the config file
+NO = 0
+YES = 1
+PROMPT = 2
+
 
 def prompt(query):
     """
@@ -36,6 +41,7 @@ def prompt(query):
         sys.stdout.write("Please answer with y/n\n")
         return prompt(query)
     return result
+
 
 def fatsortAvailable(verbose, quiet):
     """
