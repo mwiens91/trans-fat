@@ -224,18 +224,17 @@ if __name__ == '__main__':
 
     # Select which section of settings to use. The resulting
     # 'configparser.SectionProxy' behaves quite similarly to a dictionary.
-    # Please see the config file specified by the runtime argument
-    # '--config-file' to see the actual options
+    # See the config .ini file specified by the runtime argument
+    # '--config-file' to see config options available
     if args.default:
         # Use DEFAULT section of config file
-        settings = config['DEFAULT']
+        configsettings = config['DEFAULT']
     elif args.armin:
         # Use ARMIN section of config file
-        settings = config['ARMIN']
+        configsettings = config['ARMIN']
     else:
         # Use user section of config file
-        settings = config['user']
-
+        configsettings = config['user']
 
     # Get root access if we don't have it already, but don't update user's
     # cached credentials
