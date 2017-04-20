@@ -1,15 +1,5 @@
 #!/usr/bin/python3
 
-#state of trance sort
-# -> take in arguments of folders
-# -> find which drive to use both from /dev/.... and /media/
-# -> check if drive mounted, mount if not
-# -> rename folder to ASOT number if supplied
-# -> remove cover
-# 0 > move stuff
-# -> fatsort drive
-# mount drive back
-
 import argparse
 import configparser
 import os
@@ -349,3 +339,14 @@ if __name__ == '__main__':
         if verbose:
             print("Found device and mount locations:\ndevice: %s\nmount: %s" %
                     (deviceLoc, mountLoc), end='\n\n')
+
+    # CONVERT STUFF
+    # COME BACK HERE LATER
+
+    # MOVE STUFF
+
+    # UNMOUNT
+
+    # FATSORT
+
+    # REMOUNT
