@@ -186,13 +186,12 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
 
             # Prompt user for which device to use
             if verbose:
-                print("Failed to find device automatically!", end='\n\n')
+                print("Failed to find device automatically!", end='\n')
             print("Mounted FAT devices:", end='\n\n')
             print(*deviceListEnum, sep='\n', end='\n\n')
 
             ans = int(input("Drive to transfer to or abort [0-%d]: " %
                                                 (len(deviceListEnum)-1)))
-            print()
 
 
             # Return appropriate device and mount strings
@@ -302,7 +301,7 @@ if __name__ == '__main__':
             sys.exit(1)
         else:
             if verbose:
-                print("Running as root", end='\n\n')
+                print("Running as root", end='\n')
 
 
     # Confirm that fatsort is installed
@@ -313,7 +312,7 @@ if __name__ == '__main__':
         if fatsortAvailable(verbose, quiet):
             # fatsort available
             if verbose:
-                print("fatsort is available", end='\n\n')
+                print("fatsort is available", end='\n')
         else:
             # fatsort unavailable
             if not quiet:
@@ -337,8 +336,8 @@ if __name__ == '__main__':
         sys.exit(1)
     else:
         if verbose:
-            print("Found device and mount locations:\ndevice: %s\nmount: %s" %
-                    (deviceLoc, mountLoc), end='\n\n')
+            print("\nFound device and mount locations:\ndevice: %s\nmount: %s"
+                    % (deviceLoc, mountLoc), end='\n\n')
 
     # CONVERT STUFF
     # COME BACK HERE LATER
