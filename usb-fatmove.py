@@ -216,9 +216,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
             prog=NAME__,
             description="<program description goes here>")
-    parser.add_argument("source",
+    parser.add_argument("sources",
+            nargs='+',
             type=str,
-            help="Relative path to source directory or file")
+            help="Relative path to source directories or files")
     parser.add_argument("destination",
             type=str,
             help="Relative path to destination directory or file")
@@ -281,6 +282,20 @@ if __name__ == '__main__':
     else:
         # Use user section of config file
         configsettings = config['user']
+
+
+    # Do a quick sanity check: if we have multiples sources, make sure we're
+    # not being asked to move multiple files into anything that isn't a
+    # directory
+    # NOTE: disabled for testing
+    """
+    if not os.path.isdir(args.destination) and len(args.sources) > 1:
+        if not quiet:
+            print("ERROR: cannot write multiple files to a single file!",
+                    file=sys.stderr)
+        print("Aborting %s" % NAME__)
+        sys.exit(1)
+    """
 
 
     # Get root access if we don't have it already, and update user's cached
