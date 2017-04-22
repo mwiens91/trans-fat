@@ -95,7 +95,7 @@ def requestRootAccess(configsettings, noninteractive, verbose, quiet):
     # already have access to root credentials
     if badExitCode:
         # Get config settings for caching root credentials
-        cache_ = configsettings['UpdateUserCredentials']
+        cache_ = configsettings.getint('UpdateUserCredentials')
 
         # Prompt whether to cache root credentials if config file says to
         if cache_ == PROMPT:
@@ -208,6 +208,260 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
             return ('','')
 
 
+def getmvOptions(configsettings, verbose):
+    """
+    Determines which options to supply mv given the config settings and returns
+    a list of strings containing these options
+    """
+    # Initialize list of options
+    mvoptions = []
+
+    # Determine whether to overwrite destination files in case of conflict
+    overwritesetting = configsettings.getint('OverwriteDestinationFiles')
+
+    if overwritesetting == YES:
+        # mv --force
+        mvoptions += ['-f']
+    elif overwritesetting == PROMPT and not noninteractive:
+        # mv --interactive
+        mvoptions += ['-i']
+    else:
+        # mv --no-clobber
+        mvoptions += ['-n']
+
+    # Determine whether to be verbose
+    if verbose:
+        mvoptions += ['-v']
+
+    return mvoptions
+
+
+def getSourceAndDestinationLists(sourceLocs, destinationLoc,
+        verbose, quiet):
+    """
+    Get four lists corresponding to where our source and destination files and
+    directories are.
+
+    Inputs:
+    sourceLocs: a list of source location strings, either corresponding to
+        files or directories
+    destinationLoc: a string containing the destination file to write to or a
+        destination directory to transfer to
+    verbose: boolean toggling whether to give small amount of extra output
+    quiet: boolean toggling whether to omit small amount of error output
+
+    Outputs:
+    a tuple containing (sourceDirs, sourceFiles, destinationDirs,
+        destinationFiles) where ...
+
+    sourceDirs: a list of strings of absolute paths to source directories
+    sourceFiles: a list of strings of absolute paths to source files
+    destinationDirs: a list of strings of absolute paths to destination
+        directories
+    destinationFiles: a list of strings of absolute paths to destination files
+    """
+    # Get absolute paths of sources and destination
+    sourcePaths = [os.path.abspath(source) for source in sourceLocs]
+    destinationPath = os.path.abspath(destinationLoc)
+
+    # Initialize list of files and directories to move. The indices of
+    # corresponding source and destination lists will always be consistent
+    sourceDirs = []
+    sourceFiles = []
+    destinationDirs = []
+    destinationFiles = []
+
+
+    # Get list of files and directories to move
+    for source in sourcePaths:
+        # Get the parent directory of this source
+        parent = os.path.dirname(source)
+        parentlen = len(parent)
+
+        if os.path.isfile(source):
+            # Just a file, so add to the file list
+            sourceFiles += [source]
+            destinationFiles += [destinationPath + source[parentlen:]]
+        elif os.path.isdir(source):
+            # This is a directory, so let's go on an os.walk
+            for root, dirs, files in os.walk(source):
+                # Add root to dir list and files in root to file list
+                sourceDirs += [root]
+                sourceFiles += [root + '/' + file for file in files]
+                destinationDirs += [destinationPath + root[parentlen:]]
+                destinationFiles += [destinationPath + root[parentlen:]
+                                            + '/' + file for file in files]
+        else:
+            # Neither a file nor directory. Give a warning, but otherwise
+            # let the script proceed
+            if not quiet:
+                print("ERROR: '%s' does not exist!" % source,
+                        file=sys.stderr)
+            if verbose:
+                print("Proceeding anyway. . .")
+
+    return (sourceDirs, sourceFiles, destinationDirs, destinationFiles)
+
+
+def filterOutExtensions(sourceFileList, destinationFileList,
+        configsettings, noninteractive, verbose, quiet):
+    """
+    Remove specific files from the list of files to move as determined by the
+    instructions in the config file 'configsettings'.
+
+    This function returns nothing, but does its work by modifying the lists
+    'sourceFileList' and 'destinationFileList' in place.
+    """
+    # Load settings from config file
+    imageOption = configsettings.getint('RemoveCue')
+    logOption = configsettings.getint('RemoveLog')
+    cueOption = configsettings.getint('RemoveCue')
+    m3uOption = configsettings.getint('RemoveM4U')
+    otherOption = configsettings.getint('RemoveOtherFiletypes')
+
+    # What image file extensions we should detect (used in case insensitive
+    # comparisons)
+    audioExt = ('.flac', '.ogg', '.mp4', '.alac', '.aac', '.mp3')
+    imageExt = ('.jpg', '.jpeg', '.bmp', '.png', '.gif')
+    logExt = ('.log',)
+    cueExt = ('.cue',)
+    m3uExt = ('.m3u',)
+
+    # Pair the file extensions with their corresponding config settings
+    extensionList = [[imageExt, imageOption],
+                     [logExt, logOption],
+                     [cueExt, cueOption],
+                     [m3uExt, m3uOption]]
+
+    # Make a list of all non-audio extensions
+    nonAudioExt = ()
+    for ext in extensionList:
+        nonAudioExt += ext[0]
+
+
+    # Initialize a list of indices corresponding to files to remove
+    indexList = []
+
+    # Find which files have extensions that we don't want and mark their
+    # indices
+    for file in sourceFileList:
+        if file.lower().endswith(audioExt):
+            # This is an audio file; keep this file for sure
+            continue
+        elif file.lower().endswith(nonAudioExt):
+            # This matches one of the non-audio extensions. Find which
+            # extension it is and remove the file from the file list as
+            # instructed to by the config settings.
+            for ext, removeOption in extensionList:
+                if file.lower().endswith(ext):
+                    # Extension matched! Do what config file says, prompting if
+                    # necessary.
+                    if ((removeOption == PROMPT and
+                            (noninterative or prompt("Move %s?" % file)))
+                            or removeOption == NO):
+                        # Keep the file in the file list
+                        break
+                    else:
+                        # Add index to list of indices to remove
+                        indexList += [sourceFileList.index(file)]
+        else:
+            # This is some other kind of file. Do what config file says,
+            # prompting if necessary.
+            if ((otherOption == PROMPT and
+                    (noninteractive or prompt("Move %s?" % file)))
+                    or otherOption == NO):
+                # Keep the file in the file list
+                continue
+            else:
+                # Add index to list of indices to remove
+                indexList += [sourceFileList.index(file)]
+
+
+    # Remove files we don't want from the file lists
+    for index in indexList[::-1]:
+        sourceFileList.pop(index)
+        destinationFileList.pop(index)
+
+    return
+
+
+def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
+        verbose, quiet):
+    """
+    Create directory tree structure given by 'destinationDirList'.
+    """
+    # Determine whether to overwrite files with directories or to prompt
+    overwrite = configsettings.getint('OverwriteDestinationFiles')
+
+    # But don't prompt if we're in non-interactive mode
+    if noninteractive and overwrite == PROMPT:
+        overwrite = NO
+
+    # Create each directory in the natural order of os.walk - this is essential
+    # to maximize error catching
+    for targetDir in destinationDirsList:
+        try:
+
+            if verbose:
+                print("Checking %s . . ." % targetDir)
+
+            # Check if the directory already exists; move on to the next
+            # directory if so
+            if os.path.isdir(targetDir):
+                # Already a directory
+                if verbose:
+                    print("%s already exists" % targetDir)
+
+                continue
+
+            # Check if we're attempting to overwrite a file
+            if os.path.isfile(targetDir):
+                # Determine whether to overwrite or abort
+                if (overwritesetting == YES or
+                    (overwritesetting == PROMPT and
+                        prompt("%s is a file. Overwrite?" % targetDir))):
+                    # Overwrite - so remove the file that's in the way
+                    os.remove(targetDir)
+                else:
+                    # Don't overwrite file with directory.
+
+                    if not quiet:
+                        print("ERROR: attempting to overwrite a file with a "
+                                "directory!", file=sys.stderr)
+
+                    raise OSError("Cannot overwrite a file with a directory!")
+
+            # Everything _should_ be okay. Create destination directory
+            if verbose:
+                print("creating %s" % targetDir)
+
+            os.makedirs(targetDir)
+        except OSError:
+            if not quiet:
+                print("ERROR: Failed to create %s!" % targetDir,
+                        file=sys.stderr)
+
+    return
+
+
+def moveFiles(sourceFiles, destinationFiles, mvoptions)
+    """
+    Use mv with options specified in mvoptions to move each file specified in
+    sourceFiles to the corresponding destination specified in destinationFiles
+    (the indices of each corresponding pair match).
+    """
+    # Move the files to the destination directory
+    # returns garbage for now, just for testing
+    for source, destination in zip(sourceFiles, destinationFiles):
+        moveProcess = subprocess.Popen(["echo", source, destination],
+                            stdout=subprocess.PIPE)
+        output = moveProcess.communicate()[0].decode('ascii')
+        output = output.strip()
+        print(output)
+
+    return
+
+
 if __name__ == '__main__':
 
     # Parse input arguments
@@ -258,7 +512,11 @@ if __name__ == '__main__':
     # Parse config file
     config = configparser.ConfigParser()
 
-    # Try reading file specified, and exit if failure
+    if verbose:
+        print("Reading config file %s. . ." % args.config_file)
+
+    # Try reading file specified, and exit if failure. If config can't read
+    # successfully it just returns an empty list.
     if config.read(args.config_file) == []:
         if not quiet:
             print("ERROR: '" + args.config_file +
@@ -281,19 +539,26 @@ if __name__ == '__main__':
         # Use user section of config file
         configsettings = config['user']
 
+    if verbose:
+        print("%s successfully read" % args.config_file)
+
 
     # Do a quick sanity check: if we have multiples sources, make sure we're
     # not being asked to move multiple files into anything that isn't a
     # directory
-    # NOTE: disabled for testing
-    """
+    if verbose:
+        print("Checking sure we aren't writing multiple files to a single "
+        "file . . .")
+
     if not os.path.isdir(args.destination) and len(args.sources) > 1:
         if not quiet:
             print("ERROR: cannot write multiple files to a single file!",
                     file=sys.stderr)
         print("Aborting %s" % NAME__)
         sys.exit(1)
-    """
+
+    if verbose:
+        print("Looks okay")
 
 
     # Get root access if we don't have it already, and update user's cached
@@ -345,6 +610,7 @@ if __name__ == '__main__':
     if deviceLoc == '':
         if not quiet:
             print("ERROR: no FAT device found!", file=sys.stderr)
+
         print("Aborting %s" % NAME__)
         sys.exit(1)
     else:
@@ -352,13 +618,64 @@ if __name__ == '__main__':
             print("\nFound device and mount locations:\ndevice: %s\nmount: %s"
                     % (deviceLoc, mountLoc), end='\n\n')
 
-    # CONVERT STUFF
-    # COME BACK HERE LATER
 
-    # MOVE STUFF
+    # Determine what options to give mv
+    if verbose:
+        print("Getting options for mv . . .")
+
+    mvoptions = getmvOptions(configsettings, verbose)
+
+    if verbose:
+        print("mv options obtained")
+
+
+    # Get source and destination locations
+    if verbose:
+        print("Getting lists of source and destination locations")
+
+    (sourceDirs, sourceFiles, destinationDirs, destinationFiles) =
+        getSourceAndDestinationLists(args.sources, args.destination,
+                verbose, quiet)
+
+    if verbose:
+        print("All locations found")
+
+
+    # Filter out certain file types based on settings in config file
+    if verbose:
+        print("Filtering out unwanted file types . . .")
+
+    filterOutExtensions(sourceFiles, destinationFiles, configsettings,
+            noninteractive, verbose, quiet)
+
+    if verbose:
+        print("Filtering complete")
+
+
+    # Perform necessary conversions as specified in config file
+
+
+    # Create necessary directories to transfer to
+    if verbose:
+        print("Creating destination directories . . .")
+
+    createDirsAndParents(destinationDirs, configsettings, noninteractive,
+            verbose, quiet)
+
+    if verbose:
+        print("Destination directories created")
+
 
     # UNMOUNT
 
+
     # FATSORT
 
+
     # REMOUNT
+
+
+    # Delete source directory if asked to
+
+
+    # Armin mode - rename destination directories
