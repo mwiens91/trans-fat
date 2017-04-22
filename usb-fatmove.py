@@ -88,7 +88,6 @@ def requestRootAccess(configsettings, noninteractive, verbose, quiet):
     if noninteractive and exitCode:
         return False
 
-
     # Assume we cache credentials by default (i.e., we run 'sudo'
     # instead of 'sudo -k'); change this below if needed
     cacheOption = []
@@ -146,7 +145,6 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
     # Make sure destinationLoc is absolute path
     destinationLoc = os.path.abspath(destinationLoc)
 
-
     # Get list of FAT devices
     bashListCmd = "mount -t vfat | cut -f 1,3 -d ' '"
     deviceListProcess = subprocess.Popen(["bash", "-c", bashListCmd],
@@ -196,7 +194,7 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
 
             # Prompt user for which device to use
             if verbose:
-                print("Failed to find device automatically!", end='\n')
+                print("Failed to find device automatically!")
             print("Mounted FAT devices:", end='\n\n')
             print(*deviceListEnum, sep='\n', end='\n\n')
 
@@ -402,8 +400,8 @@ def filterOutExtensions(sourceFileList, destinationFileList,
                 # Add index to list of indices to remove
                 indexList += [sourceFileList.index(file)]
 
-
-    # Remove files we don't want from the file lists
+    # Remove files we don't want from the file lists, going through the
+    # indices in reverse order
     for index in indexList[::-1]:
         sourceFileList.pop(index)
         destinationFileList.pop(index)
@@ -547,6 +545,7 @@ if __name__ == '__main__':
     quiet = args.quiet
 
 
+
     # Parse config file
     config = configparser.ConfigParser()
 
@@ -583,6 +582,7 @@ if __name__ == '__main__':
         print("Success: '%s' read" % args.config_file)
 
 
+
     # Do a quick sanity check: if we have multiples sources, make sure
     # we're not being asked to move multiple files into anything that
     # isn't a directory
@@ -599,6 +599,7 @@ if __name__ == '__main__':
 
     if verbose:
         print("Success: looks okay")
+
 
 
     # Get root access if we don't have it already, and update user's
@@ -620,7 +621,8 @@ if __name__ == '__main__':
             sys.exit(1)
         else:
             if verbose:
-                print("Success: running as root", end='\n')
+                print("Success: running as root")
+
 
 
     # Confirm that fatsort is installed
@@ -631,7 +633,7 @@ if __name__ == '__main__':
         if fatsortAvailable(verbose, quiet):
             # fatsort available
             if verbose:
-                print("Success: fatsort is available", end='\n')
+                print("Success: fatsort is available")
         else:
             # fatsort unavailable
             if not quiet:
@@ -640,15 +642,18 @@ if __name__ == '__main__':
             sys.exit(1)
 
 
+
     # Find device and mount location corresponding to provided
     # destination
     if verbose:
         print("Finding device and mount location containing %s . . ."
-              % args.destination, end='\n')
+              % args.destination)
 
+    # This returns empty strings if it failed
     deviceLoc, mountLoc = findDeviceLocation(args.destination, noninteractive,
                                              verbose, quiet)
 
+    # Test for failure
     if deviceLoc == '':
         if not quiet:
             print("ERROR: no FAT device found!", file=sys.stderr)
@@ -663,6 +668,7 @@ if __name__ == '__main__':
                   end='\n\n')
 
 
+
     # Determine what options to give mv
     if verbose:
         print("Obtaining options for mv . . .")
@@ -671,6 +677,7 @@ if __name__ == '__main__':
 
     if verbose:
         print("Success: mv options obtained")
+
 
 
     # Get source and destination locations
@@ -686,6 +693,7 @@ if __name__ == '__main__':
         print("Success: source and destination locations found")
 
 
+
     # Filter out certain file types based on settings in config file
     if verbose:
         print("Filtering out unwanted file types . . .")
@@ -697,7 +705,9 @@ if __name__ == '__main__':
         print("Success: filtering complete")
 
 
+
     # Perform necessary conversions as specified in config file
+
 
 
     # Create necessary directories to transfer to
@@ -711,6 +721,7 @@ if __name__ == '__main__':
         print("Success: destination directories created")
 
 
+
     # Move source files to destination
     if verbose:
         print("Moving files . . .")
@@ -721,16 +732,21 @@ if __name__ == '__main__':
         print("Success: files moved")
 
 
+
     # UNMOUNT
+
 
 
     # FATSORT
 
 
+
     # REMOUNT
 
 
+
     # Delete source directory if asked to
+
 
 
     # Armin mode - rename destination directories
