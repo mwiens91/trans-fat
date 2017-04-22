@@ -357,7 +357,7 @@ def filterOutExtensions(sourceFileList, destinationFileList,
                     # Extension matched! Do what config file says, prompting if
                     # necessary.
                     if ((removeOption == PROMPT and
-                            (noninterative or prompt("Move %s?" % file)))
+                            (noninterative or prompt("Move '%s'?" % file)))
                             or removeOption == NO):
                         # Keep the file in the file list
                         break
@@ -368,7 +368,7 @@ def filterOutExtensions(sourceFileList, destinationFileList,
             # This is some other kind of file. Do what config file says,
             # prompting if necessary.
             if ((otherOption == PROMPT and
-                    (noninteractive or prompt("Move %s?" % file)))
+                    (noninteractive or prompt("Move '%s'?" % file)))
                     or otherOption == NO):
                 # Keep the file in the file list
                 continue
@@ -433,7 +433,7 @@ def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
 
             # Everything _should_ be okay. Create destination directory
             if verbose:
-                print("creating %s" % targetDir)
+                print("Creating %s" % targetDir)
 
             os.makedirs(targetDir)
         except OSError:
@@ -444,7 +444,7 @@ def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
     return
 
 
-def moveFiles(sourceFiles, destinationFiles, mvoptions)
+def moveFiles(sourceFiles, destinationFiles, mvoptions):
     """
     Use mv with options specified in mvoptions to move each file specified in
     sourceFiles to the corresponding destination specified in destinationFiles
@@ -513,7 +513,7 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
 
     if verbose:
-        print("Reading config file %s. . ." % args.config_file)
+        print("Reading config file '%s'. . ." % args.config_file)
 
     # Try reading file specified, and exit if failure. If config can't read
     # successfully it just returns an empty list.
@@ -540,14 +540,14 @@ if __name__ == '__main__':
         configsettings = config['user']
 
     if verbose:
-        print("%s successfully read" % args.config_file)
+        print("Success: '%s' read" % args.config_file)
 
 
     # Do a quick sanity check: if we have multiples sources, make sure we're
     # not being asked to move multiple files into anything that isn't a
     # directory
     if verbose:
-        print("Checking sure we aren't writing multiple files to a single "
+        print("Making sure we aren't writing multiple files to a single "
         "file . . .")
 
     if not os.path.isdir(args.destination) and len(args.sources) > 1:
@@ -558,7 +558,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if verbose:
-        print("Looks okay")
+        print("Success: looks okay")
 
 
     # Get root access if we don't have it already, and update user's cached
@@ -579,7 +579,7 @@ if __name__ == '__main__':
             sys.exit(1)
         else:
             if verbose:
-                print("Running as root", end='\n')
+                print("Success: running as root", end='\n')
 
 
     # Confirm that fatsort is installed
@@ -590,7 +590,7 @@ if __name__ == '__main__':
         if fatsortAvailable(verbose, quiet):
             # fatsort available
             if verbose:
-                print("fatsort is available", end='\n')
+                print("Success: fatsort is available", end='\n')
         else:
             # fatsort unavailable
             if not quiet:
@@ -615,30 +615,31 @@ if __name__ == '__main__':
         sys.exit(1)
     else:
         if verbose:
-            print("\nFound device and mount locations:\ndevice: %s\nmount: %s"
+            print("Success\n\n"
+                   "Found device and mount locations:\ndevice: %s\nmount: %s"
                     % (deviceLoc, mountLoc), end='\n\n')
 
 
     # Determine what options to give mv
     if verbose:
-        print("Getting options for mv . . .")
+        print("Obtaining options for mv . . .")
 
     mvoptions = getmvOptions(configsettings, verbose)
 
     if verbose:
-        print("mv options obtained")
+        print("Success: mv options obtained")
 
 
     # Get source and destination locations
     if verbose:
-        print("Getting lists of source and destination locations")
+        print("Getting lists of source and destination locations . . .")
 
-    (sourceDirs, sourceFiles, destinationDirs, destinationFiles) =
+    (sourceDirs, sourceFiles, destinationDirs, destinationFiles) = (
         getSourceAndDestinationLists(args.sources, args.destination,
-                verbose, quiet)
+                verbose, quiet))
 
     if verbose:
-        print("All locations found")
+        print("Success: source and destination locations found")
 
 
     # Filter out certain file types based on settings in config file
@@ -649,7 +650,7 @@ if __name__ == '__main__':
             noninteractive, verbose, quiet)
 
     if verbose:
-        print("Filtering complete")
+        print("Success: filtering complete")
 
 
     # Perform necessary conversions as specified in config file
@@ -663,7 +664,7 @@ if __name__ == '__main__':
             verbose, quiet)
 
     if verbose:
-        print("Destination directories created")
+        print("Success: destination directories created")
 
 
     # UNMOUNT
