@@ -667,6 +667,16 @@ if __name__ == '__main__':
         print("Success: destination directories created")
 
 
+    # Move source files to destination
+    if verbose:
+        print("Moving files . . .")
+
+    moveFiles(sourceFiles, destinationFiles, mvoptions)
+
+    if verbose:
+        print("Success: files moved")
+
+
     # UNMOUNT
 
 
