@@ -137,7 +137,6 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
 
 
     # Get list of FAT devices
-
     bashListCmd = "mount -t vfat | cut -f 1,3 -d ' '"
     deviceListProcess = subprocess.Popen(["bash", "-c", bashListCmd],
                         stdout=subprocess.PIPE)
@@ -163,7 +162,6 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
 
 
     # Test if destinationLoc matches any mount locations
-
     for i in range(len(deviceList)):
         # Find common path of destination location and mount location of the
         # ith device
