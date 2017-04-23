@@ -219,36 +219,6 @@ def findDeviceLocation(destination, noninteractive, verbose, quiet):
         return ('', '')
 
 
-def getmvOptions(configsettings, noninteractive, verbose):
-    """Return options to run mv with.
-
-    Determines which options to supply with mv given config settings.
-    Returns a list of strings containing these options
-    """
-    # Initialize list of options
-    mvOptions = []
-
-    # Determine whether to overwrite destination files in case of
-    # conflict
-    overwritesetting = configsettings.getint('OverwriteDestinationFiles')
-
-    if overwritesetting == YES:
-        # mv --force
-        mvOptions += ['-f']
-    elif overwritesetting == PROMPT and not noninteractive:
-        # mv --interactive
-        mvOptions += ['-i']
-    else:
-        # mv --no-clobber
-        mvOptions += ['-n']
-
-    # Determine whether to be verbose
-    if verbose:
-        mvOptions += ['-v']
-
-    return mvOptions
-
-
 def getSourceAndDestinationLists(sourceLocs, destinationLoc, verbose, quiet):
     """Return source and destination locations for files and dirs.
 
@@ -469,13 +439,36 @@ def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
     return
 
 
-def moveFiles(sourceFiles, destinationFiles, mvOptions):
+def moveFiles(sourceFiles, destinationFiles, configsettings, noninteractive,
+              verbose):
     """Move files from source to destination.
 
-    Use mv with options specified in mvoptions to move each file
+    Use mv with options specified in config settings to move each file
     specified in sourceFiles to the corresponding destination specified
     in destinationFiles (the indices of each corresponding pair match).
     """
+
+    # Determines which options to supply with mv given config settings.
+    mvOptions = []
+
+    # Determine whether to overwrite destination files in case of
+    # conflict
+    overwritesetting = configsettings.getint('OverwriteDestinationFiles')
+
+    if overwritesetting == YES:
+        # mv --force
+        mvOptions += ['-f']
+    elif overwritesetting == PROMPT and not noninteractive:
+        # mv --interactive
+        mvOptions += ['-i']
+    else:
+        # mv --no-clobber
+        mvOptions += ['-n']
+
+    # Determine whether to be verbose
+    if verbose:
+        mvOptions += ['-v']
+
     # Move the files to the destination directory
     # returns garbage for now, just for testing
     for source, destination in zip(sourceFiles, destinationFiles):
@@ -662,16 +655,6 @@ if __name__ == '__main__':
 
 
 
-    # Determine what options to give mv
-    if args.verbose:
-        print("Obtaining options for mv . . .")
-
-    mvFlags = getmvOptions(cfgSettings, args.non_interactive, args.verbose)
-
-    if args.verbose:
-        print("Success: mv options obtained")
-
-
 
     # Get source and destination locations
     if args.verbose:
@@ -717,7 +700,8 @@ if __name__ == '__main__':
     if args.verbose:
         print("Moving files . . .")
 
-    moveFiles(fromFiles, toFiles, mvFlags)
+    moveFiles(fromFiles, toFiles, cfgSettings, args.non_interactive,
+              args.verbose)
 
     if args.verbose:
         print("Success: files moved")
