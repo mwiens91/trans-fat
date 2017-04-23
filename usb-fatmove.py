@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+# coding: utf-8
+"""
+    package.module
+    ~~~~~~~~~~~~~
+
+    A description which can be long and explain the complete
+    functionality of this module even with indented code examples.
+    Class/Function however should not be documented here.
+
+    :copyright: year by my name, see AUTHORS for more details
+    :license: license_name, see LICENSE for more details
+"""
 
 import argparse
 import configparser
@@ -45,8 +57,7 @@ def fatsortAvailable():
     return bool(exitCode)
 
 
-
-def requestRootAccess(configsettings, noninteractive, verbose, quiet):
+def requestRootAccess(configsettings, noninteractive, verbose):
     """
     Request root access if we don't already have it. If we obtain it,
     restart script as root and update user credentials according to
@@ -59,7 +70,6 @@ def requestRootAccess(configsettings, noninteractive, verbose, quiet):
         credentials not already cached
     verbose: boolean toggling whether to give small amount of extra
         output
-    quiet: [does nothing here so far]
 
     Returns true if everything went okay, and false otherwise.
     """
@@ -110,15 +120,15 @@ def requestRootAccess(configsettings, noninteractive, verbose, quiet):
         print("Restarting as root . . .")
 
     # Replace currently-running process with root-access process
-    args = (['sudo']
-            + cacheOption
-            + [sys.executable]
-            + sys.argv
-            + [os.environ])
-    os.execlpe('sudo', *args)
+    sudoCmd = (['sudo']
+               + cacheOption
+               + [sys.executable]
+               + sys.argv
+               + [os.environ])
+    os.execlpe('sudo', *sudoCmd)
 
 
-def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
+def findDeviceLocation(destination, noninteractive, verbose, quiet):
     """
     Find device and mount location of destination drive given a string
     containing the destination location. Will prompt with list of
@@ -126,7 +136,7 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
     automatically (provided quiet option is not enabled).
 
     Inputs:
-    destinationLoc: string containing path to destination file or
+    destination: string containing path to destination file or
         directory.
     noninteractive: boolean toggling whether to omit interactive error
         resolution
@@ -137,8 +147,8 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
     Returns a tuple containing device location and mount location as
     strings or a tuple of 2 empty strings if no device could be found.
     """
-    # Make sure destinationLoc is absolute path
-    destinationLoc = os.path.abspath(destinationLoc)
+    # Make sure destination is absolute path
+    destination = os.path.abspath(destination)
 
     # Get list of FAT devices
     bashListCmd = "mount -t vfat | cut -f 1,3 -d ' '"
@@ -153,7 +163,7 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
     # Check if any FAT devices were found
     if deviceString == '':
         # No FAT devices found, return empty string
-        return ('','')
+        return ('', '')
 
     # Split deviceString so we get a separate string for each device
     deviceList = deviceString.split('\n')
@@ -164,61 +174,61 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
     # of the ith device
     deviceListSep = [deviceList[i].split() for i in range(len(deviceList))]
 
-    # Test if destinationLoc matches any mount locations
+    # Test if destination matches any mount locations
     for i in range(len(deviceList)):
         deviceLoc = deviceListSep[i][0]
         mountLoc = deviceListSep[i][1]
 
-        if destinationLoc.startswith(mountLoc):
+        if destination.startswith(mountLoc):
             # Found a match! Return device and mount location
             return (deviceLoc, mountLoc)
-    else:
-        if not noninteractive:
-            # Something went wrong with the automation: if not set to
-            # non-interactive mode, ask user if any of the FAT devices
-            # found earlier match the intended destination
 
-            # Enumerate each device
-            deviceListEnum = ["[%d] %s" % (i, deviceList[i-1])
-                              for i in range(1, len(deviceList)+1)
-                             ]
-            # Add option to abort
-            deviceListEnum.insert(0, "[0] abort!")
+    # Something went wrong with the automation: if not set to
+    # non-interactive mode, ask user if any of the FAT devices found
+    # earlier match the intended destination; otherwise, just return
+    # empty strings
+    if not noninteractive:
+        # Enumerate each device
+        deviceListEnum = ["[%d] %s" % (i, deviceList[i-1])
+                          for i in range(1, len(deviceList)+1)]
 
-            # Prompt user for which device to use
-            if verbose:
-                print("Failed to find device automatically!")
-            print("Mounted FAT devices:", end='\n\n')
-            print(*deviceListEnum, sep='\n', end='\n\n')
+        # Add option to abort
+        deviceListEnum.insert(0, "[0] abort!")
 
-            ans = int(
-                    input("Drive to transfer to or abort [0-%d]: "
-                          % (len(deviceListEnum)-1))
-                     )
+        # Prompt user for which device to use
+        if verbose:
+            print("Failed to find device automatically!")
+        print("Mounted FAT devices:", end='\n\n')
+        print(*deviceListEnum, sep='\n', end='\n\n')
 
-            # Return appropriate device and mount strings
-            if ans == 0:
-                # User selected abort, so return empty strings
-                return ('','')
-            elif ans > len(deviceListEnum)-1:
-                if not quiet:
-                    print("ERROR: invalid index", file=sys.stderr)
-                return ('','')
-            else:
-                # Return requested device and mount location strings
-                return (deviceListSep[ans-1][0], deviceListSep[ans-1][1])
+        ans = int(
+                input("Drive to transfer to or abort [0-%d]: "
+                      % (len(deviceListEnum)-1))
+                 )
+
+        # Return appropriate device and mount strings
+        if ans == 0:
+            # User selected abort, so return empty strings
+            return ('', '')
+        elif ans > len(deviceListEnum)-1:
+            if not quiet:
+                print("ERROR: invalid index", file=sys.stderr)
+            return ('', '')
         else:
-            # Non-interactive mode is on, just return an empty string
-            return ('','')
+            # Return requested device and mount location strings
+            return (deviceListSep[ans-1][0], deviceListSep[ans-1][1])
+    else:
+        # Non-interactive mode is on, just return an empty string
+        return ('', '')
 
 
-def getmvOptions(configsettings, verbose):
+def getmvOptions(configsettings, noninteractive, verbose):
     """
     Determines which options to supply mv given the config settings and
     returns a list of strings containing these options
     """
     # Initialize list of options
-    mvoptions = []
+    mvOptions = []
 
     # Determine whether to overwrite destination files in case of
     # conflict
@@ -226,23 +236,22 @@ def getmvOptions(configsettings, verbose):
 
     if overwritesetting == YES:
         # mv --force
-        mvoptions += ['-f']
+        mvOptions += ['-f']
     elif overwritesetting == PROMPT and not noninteractive:
         # mv --interactive
-        mvoptions += ['-i']
+        mvOptions += ['-i']
     else:
         # mv --no-clobber
-        mvoptions += ['-n']
+        mvOptions += ['-n']
 
     # Determine whether to be verbose
     if verbose:
-        mvoptions += ['-v']
+        mvOptions += ['-v']
 
-    return mvoptions
+    return mvOptions
 
 
-def getSourceAndDestinationLists(sourceLocs, destinationLoc,
-                                 verbose, quiet):
+def getSourceAndDestinationLists(sourceLocs, destinationLoc, verbose, quiet):
     """
     Get four lists corresponding to where our source and destination
     files and directories are.
@@ -280,7 +289,6 @@ def getSourceAndDestinationLists(sourceLocs, destinationLoc,
     destinationDirs = []
     destinationFiles = []
 
-
     # Get list of files and directories to move
     for source in sourcePaths:
         # Get the parent directory of this source
@@ -293,7 +301,7 @@ def getSourceAndDestinationLists(sourceLocs, destinationLoc,
             destinationFiles += [destinationPath + source[parentlen:]]
         elif os.path.isdir(source):
             # This is a directory, so let's go on an os.walk
-            for root, dirs, files in os.walk(source):
+            for root, _, files in os.walk(source):
                 # Add root to dir list and files in root to file list
                 sourceDirs += [root]
                 sourceFiles += [root + '/' + file for file in files]
@@ -302,8 +310,7 @@ def getSourceAndDestinationLists(sourceLocs, destinationLoc,
                                      + root[parentlen:]
                                      + '/'
                                      + file
-                                     for file in files
-                                    ]
+                                     for file in files]
         else:
             # Neither a file nor directory. Give a warning, but
             # otherwise let the script proceed
@@ -316,8 +323,8 @@ def getSourceAndDestinationLists(sourceLocs, destinationLoc,
     return (sourceDirs, sourceFiles, destinationDirs, destinationFiles)
 
 
-def filterOutExtensions(sourceFileList, destinationFileList,
-                        configsettings, noninteractive, verbose, quiet):
+def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
+                        noninteractive):
     """
     Remove specific files from the list of files to move as determined
     by the instructions in the config file 'configsettings'.
@@ -344,8 +351,7 @@ def filterOutExtensions(sourceFileList, destinationFileList,
     extensionList = [[imageExt, imageOption],
                      [logExt, logOption],
                      [cueExt, cueOption],
-                     [m3uExt, m3uOption]
-                    ]
+                     [m3uExt, m3uOption]]
 
     # Make a list of all non-audio extensions
     nonAudioExt = ()
@@ -371,9 +377,8 @@ def filterOutExtensions(sourceFileList, destinationFileList,
                     # prompting if necessary.
 
                     if ((removeOption == PROMPT
-                         and (noninterative or prompt("Move '%s'?" % file)))
-                        or removeOption == NO
-                       ):
+                         and (noninteractive or prompt("Move '%s'?" % file)))
+                            or removeOption == NO):
                         # Keep the file in the file list
                         break
                     else:
@@ -385,8 +390,7 @@ def filterOutExtensions(sourceFileList, destinationFileList,
 
             if ((otherOption == PROMPT
                  and (noninteractive or prompt("Move '%s'?" % file)))
-                or otherOption == NO
-               ):
+                    or otherOption == NO):
                 # Keep the file in the file list
                 continue
             else:
@@ -434,10 +438,9 @@ def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
             # Check if we're attempting to overwrite a file
             if os.path.isfile(targetDir):
                 # Determine whether to overwrite or abort
-                if (overwritesetting == YES
-                    or (overwritesetting == PROMPT
-                        and prompt("%s is a file. Overwrite?" % targetDir))
-                   ):
+                if (overwrite == YES
+                    or (overwrite == PROMPT
+                        and prompt("%s is a file. Overwrite?" % targetDir))):
                     # Overwrite - so remove the file that's in the way
                     os.remove(targetDir)
                 else:
@@ -463,7 +466,7 @@ def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
     return
 
 
-def moveFiles(sourceFiles, destinationFiles, mvoptions):
+def moveFiles(sourceFiles, destinationFiles, mvOptions):
     """
     Use mv with options specified in mvoptions to move each file
     specified in sourceFiles to the corresponding destination specified
@@ -531,24 +534,18 @@ if __name__ == '__main__':
             action="store_true")
     args = parser.parse_args()
 
-    # Unpack frequently used runtime arguments
-    noninteractive = args.non_interactive
-    nofatsort = args.no_fatsort
-    verbose = args.verbose
-    quiet = args.quiet
-
 
 
     # Parse config file
     config = configparser.ConfigParser()
 
-    if verbose:
+    if args.verbose:
         print("Reading config file '%s'. . ." % args.config_file)
 
     # Try reading config file specified, and exit if failure. If config
     # can't read successfully it just returns an empty list.
     if config.read(args.config_file) == []:
-        if not quiet:
+        if not args.quiet:
             print("ERROR: '"
                   + args.config_file
                   + "' is not a valid config file!",
@@ -556,22 +553,21 @@ if __name__ == '__main__':
         print("Aborting %s" % NAME__)
         sys.exit(1)
 
-
     # Select which section of settings to use. The resulting
     # 'configparser.SectionProxy' behaves quite similarly to a
     # dictionary.  See the config .ini file specified by the runtime
     # argument '--config-file' to see config options available
     if args.default:
         # Use DEFAULT section of config file
-        configsettings = config['DEFAULT']
+        cfgSettings = config['DEFAULT']
     elif args.armin:
         # Use ARMIN section of config file
-        configsettings = config['ARMIN']
+        cfgSettings = config['ARMIN']
     else:
         # Use user section of config file
-        configsettings = config['user']
+        cfgSettings = config['user']
 
-    if verbose:
+    if args.verbose:
         print("Success: '%s' read" % args.config_file)
 
 
@@ -579,18 +575,18 @@ if __name__ == '__main__':
     # Do a quick sanity check: if we have multiples sources, make sure
     # we're not being asked to move multiple files into anything that
     # isn't a directory
-    if verbose:
+    if args.verbose:
         print("Making sure we aren't writing multiple files to a single "
-        "file . . .")
+              "file . . .")
 
     if not os.path.isdir(args.destination) and len(args.sources) > 1:
-        if not quiet:
+        if not args.quiet:
             print("ERROR: cannot write multiple files to a single file!",
                   file=sys.stderr)
         print("Aborting %s" % NAME__)
         sys.exit(1)
 
-    if verbose:
+    if args.verbose:
         print("Success: looks okay")
 
 
@@ -599,37 +595,37 @@ if __name__ == '__main__':
     # cached credentials according to the config file. Skip this if
     # we're not fatsorting (since in this case we won't need root
     # access)
-    if not nofatsort:
-        if verbose:
-           print("Checking root access . . .")
+    if not args.no_fatsort:
+        if args.verbose:
+            print("Checking root access . . .")
 
-        rootAccess = (
-            requestRootAccess(configsettings, noninteractive, verbose, quiet))
+        rootAccess = requestRootAccess(cfgSettings, args.non_interactive,
+                                       args.verbose)
 
         if not rootAccess:
             # Failed to run as root
-            if not quiet:
+            if not args.quiet:
                 print("ERROR: failed to run as root!", file=sys.stderr)
             print("Aborting %s" % NAME__)
             sys.exit(1)
         else:
-            if verbose:
+            if args.verbose:
                 print("Success: running as root")
 
 
 
     # Confirm that fatsort is installed
-    if not nofatsort:
-        if verbose:
+    if not args.no_fatsort:
+        if args.verbose:
             print("Checking if fatsort is available . . .")
 
         if fatsortAvailable():
             # fatsort available
-            if verbose:
+            if args.verbose:
                 print("Success: fatsort is available")
         else:
             # fatsort unavailable
-            if not quiet:
+            if not args.quiet:
                 print("ERROR: fatsort not found!", file=sys.stderr)
             print("Aborting %s" % NAME__)
             sys.exit(1)
@@ -638,63 +634,62 @@ if __name__ == '__main__':
 
     # Find device and mount location corresponding to provided
     # destination
-    if verbose:
+    if args.verbose:
         print("Finding device and mount location containing %s . . ."
               % args.destination)
 
-    # This returns empty strings if it failed
-    deviceLoc, mountLoc = findDeviceLocation(args.destination, noninteractive,
-                                             verbose, quiet)
+    # This function returns empty strings if it failed
+    devLoc, mntLoc = findDeviceLocation(args.destination,
+                                        args.non_interactive,
+                                        args.verbose,
+                                        args.quiet)
 
     # Test for failure
-    if deviceLoc == '':
-        if not quiet:
+    if devLoc == '':
+        if not args.quiet:
             print("ERROR: no FAT device found!", file=sys.stderr)
 
         print("Aborting %s" % NAME__)
         sys.exit(1)
     else:
-        if verbose:
+        if args.verbose:
             print("Success\n\nFound device and mount locations:"
-                  "\ndevice: %s\nmount: %s"
-                  % (deviceLoc, mountLoc),
+                  "\ndevice: %s\nmount: %s" % (devLoc, mntLoc),
                   end='\n\n')
 
 
 
     # Determine what options to give mv
-    if verbose:
+    if args.verbose:
         print("Obtaining options for mv . . .")
 
-    mvoptions = getmvOptions(configsettings, verbose)
+    mvFlags = getmvOptions(cfgSettings, args.non_interactive, args.verbose)
 
-    if verbose:
+    if args.verbose:
         print("Success: mv options obtained")
 
 
 
     # Get source and destination locations
-    if verbose:
+    if args.verbose:
         print("Getting lists of source and destination locations . . .")
 
-    (sourceDirs, sourceFiles, destinationDirs, destinationFiles) = (
+    fromDirs, fromFiles, toDirs, toFiles = (
         getSourceAndDestinationLists(args.sources, args.destination,
-                                     verbose, quiet)
-        )
+                                     args.verbose, args.quiet))
 
-    if verbose:
+    if args.verbose:
         print("Success: source and destination locations found")
 
 
 
     # Filter out certain file types based on settings in config file
-    if verbose:
+    if args.verbose:
         print("Filtering out unwanted file types . . .")
 
-    filterOutExtensions(sourceFiles, destinationFiles, configsettings,
-                        noninteractive, verbose, quiet)
+    filterOutExtensions(fromFiles, toFiles, cfgSettings, args.non_interactive)
 
-    if verbose:
+    if args.verbose:
         print("Success: filtering complete")
 
 
@@ -704,24 +699,24 @@ if __name__ == '__main__':
 
 
     # Create necessary directories to transfer to
-    if verbose:
+    if args.verbose:
         print("Creating destination directories . . .")
 
-    createDirsAndParents(destinationDirs, configsettings, noninteractive,
-                         verbose, quiet)
+    createDirsAndParents(toDirs, cfgSettings, args.non_interactive,
+                         args.verbose, args.quiet)
 
-    if verbose:
+    if args.verbose:
         print("Success: destination directories created")
 
 
 
     # Move source files to destination
-    if verbose:
+    if args.verbose:
         print("Moving files . . .")
 
-    moveFiles(sourceFiles, destinationFiles, mvoptions)
+    moveFiles(fromFiles, toFiles, mvFlags)
 
-    if verbose:
+    if args.verbose:
         print("Success: files moved")
 
 
