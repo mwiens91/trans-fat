@@ -887,8 +887,19 @@ if __name__ == '__main__':
 
 
     # Delete temporary files
+    if args.verbose:
+        print("Removing any temp files . . .")
 
+    for tempFile in tmpFiles:
+        try:
+            os.remove(tempFile)
+        except OSError:
+            if not args.quiet:
+                print("ERROR: failed to remove %s!" % tempFile,
+                      file=sys.stderr)
 
+    if args.verbose:
+        print("Success: temp files removed")
 
     # Delete source directory if asked to
 
