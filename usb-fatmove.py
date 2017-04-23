@@ -310,7 +310,7 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
 
     # What image file extensions we should detect (used in case
     # insensitive comparisons)
-    audioExt = ('.flac', '.ogg', '.mp4', '.alac', '.aac', '.mp3')
+    audioExt = ('.flac', '.alac', '.aac', '.m4a', '.mp4', '.ogg', '.mp3')
     imageExt = ('.jpg', '.jpeg', '.bmp', '.png', '.gif')
     logExt = ('.log',)
     cueExt = ('.cue',)
@@ -437,6 +437,136 @@ def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
                       file=sys.stderr)
 
     return
+
+
+def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
+                      noninteractive, verbose, quiet):
+    """Convert audio files of various formats to mp3.
+
+    Uses FFmpeg to convert audio files with non-mp3 extensions (as
+    specified in the config settings) to mp3s. Returns a list of paths
+    to the mp3 files created.
+
+    The input arguments for the source and destination files are
+    expected to be in terms of absolute paths; furthermore, their
+    indices are expected to correspond to each other.
+
+    If the user has an old version of FFmpeg, it's quite possible that
+    metadata will fail to transfer to the converted file. On later
+    versions this is done by default, so I haven't specified that option
+    here.
+
+    TODO1: Implement the "prompt for convert" setting more intelligently.
+    Right now it asks for every single file it it has been instructed to
+    prompt. Probably what would be better is to assume that a 'yes' to
+    convert means a 'yes' for every other file to convert in that same
+    directory.
+
+    TODO2: When a file is overwritten it has the potential to be
+    double-counted on the file transfer lists.
+    """
+    # Quality setting for conversions. See:
+    # https://trac.ffmpeg.org/wiki/Encode/MP3
+    QUALITY = '0'
+
+    # Load extensions to convert from config file
+    flacConvert = configsettings.getint('ConvertFLACtoMP3')
+    alacConvert = configsettings.getint('ConvertALACtoMP3')
+    aacConvert = configsettings.getint('ConvertAACtoMP3')
+    m4aConvert = configsettings.getint('ConvertM4AtoMP3')
+    mp4Convert = configsettings.getint('ConvertMP4toMP3')
+    oggConvert = configsettings.getint('ConvertOGGtoMP3')
+
+    # Put these extensions in a list along with the option specifying
+    # whether to prompt. Given that PROMPT is 2, YES is 1, and NO is 0,
+    # we have that promptOption = convertOption - 1
+    extensionList = []
+
+    if flacConvert:
+        extensionList += [['.flac', flacConvert - 1]]
+    if alacConvert:
+        extensionList += [['.alac', alacConvert - 1]]
+    if aacConvert:
+        extensionList += [['.aac', aacConvert - 1]]
+    if m4aConvert:
+        extensionList += [['.m4a', m4aConvert - 1]]
+    if mp4Convert:
+        extensionList += [['.mp4', mp4Convert - 1]]
+    if oggConvert:
+        extensionList += [['.ogg', oggConvert - 1]]
+
+    # Return an empty list if we don't need to convert anything
+    if not extensionList:
+        return []
+
+    # We need to look for files to convert. Determine how noisy and how
+    # interactive FFmpeg should be.
+    logsetting = ['-loglevel']
+
+    if quiet:
+        logsetting += ['fatal']
+    elif verbose:
+        logsetting += ['info']
+    else:
+        logsetting += ['warning']
+
+    if noninteractive:
+        # Don't overwrite already converted files if they exist
+        overwritesetting = ['-n']
+    else:
+        overwritesetting = []
+
+    # List of files converted
+    convertedFiles = []
+
+    # Convert each file as necessary
+    for oldFile in sourceFiles:
+        for extension, promptOption in extensionList:
+            # If we match an extention, prompt if necessary
+            if (oldFile.lower().endswith(extension)
+                and (not promptOption
+                     or (not noninteractive
+                         and prompt("Convert %s?" % oldFile)))):
+                # Convert the file!
+                if not quiet:
+                    print("Converting %s" % oldFile)
+
+                newFile = oldFile[:-len(extension)] + '.mp3'
+                command = (['ffmpeg']
+                           + ['-i', oldFile]
+                           + overwritesetting
+                           + logsetting
+                           + ['-hide_banner']
+                           + ['-codec:a', 'libmp3lame']
+                           + ['-qscale:a', QUALITY]
+                           + [newFile])
+
+                # Give stdin and stdout to user and wait for completion
+                convertProcess = subprocess.Popen(command)
+                exitCode = convertProcess.wait()
+
+                if exitCode:
+                    # Failed to convert
+                    if not quiet:
+                        print("ERROR: failed to convert %s", % oldFile,
+                              file=sys.stderr)
+                else:
+                    # Success. Add to list of converted files
+                    convertedFiles += [newFile]
+
+                    # Swap the source and destination files with the new
+                    # converted file-name.
+                    oldFileIndex = sourceFiles.index(oldFile)
+                    oldDestination = destinationFiles[oldFileIndex]
+                    newDestination = oldDestination[:-len(extension)] + '.mp3'
+
+                    sourceFiles[oldFileIndex] = newFile
+                    destinationFiles[oldFileIndex] = newDestination
+
+                # Move on to next file
+                break
+
+    return convertedFiles
 
 
 def moveFiles(sourceFiles, destinationFiles, configsettings, noninteractive,
@@ -680,7 +810,18 @@ if __name__ == '__main__':
 
 
 
-    # Perform necessary conversions as specified in config file
+    # Perform necessary audio file conversions as specified in config
+    # file
+    if args.verbose:
+        print("Checking whether to convert any audio files . . .")
+
+    # Returns a list of temporary source files to remove later
+    tmpFiles = convertAudioFiles(fromFiles, toFiles, cfgSettings,
+                                 args.non_interactive, args.verbose,
+                                 args.quiet)
+
+    if args.verbose:
+        print("Success: conversions finished")
 
 
 
