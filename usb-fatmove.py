@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 # coding: utf-8
-"""
-    package.module
-    ~~~~~~~~~~~~~
+"""Move files to a device and fatsort that device.
 
-    A description which can be long and explain the complete
-    functionality of this module even with indented code examples.
-    Class/Function however should not be documented here.
+usb-fatmove
+~~~~~~~~~~~~~
 
-    :copyright: year by my name, see AUTHORS for more details
-    :license: license_name, see LICENSE for more details
+description here
+
+:copyright: year by my name, see AUTHORS for more details
+:license: license_name, see LICENSE for more details
 """
 
 import argparse
@@ -29,9 +28,10 @@ PROMPT = 2
 
 
 def prompt(query):
-    """
-    A simple function to ask yes/no questions to stdout on the command
-    line. Credit goes to Matt Stevenson. See:
+    """Prompt yes/no and return a boolean answer.
+
+    A simple function to ask yes/no questions on the command line.
+    Credit goes to Matt Stevenson. See:
     http://mattoc.com/python-yes-no-prompt-cli.html
     """
     sys.stdout.write("%s [y/n]: " % query)
@@ -46,10 +46,7 @@ def prompt(query):
 
 
 def fatsortAvailable():
-    """
-    Check to see if fatsort is available on the system.  Returns true or
-    false.
-    """
+    """Return true if fatsort is available and false otherwise."""
     fatCheck = subprocess.Popen(["bash", "-c", "type fatsort"],
                                 stdout=subprocess.DEVNULL,
                                 stderr=subprocess.DEVNULL)
@@ -58,18 +55,18 @@ def fatsortAvailable():
 
 
 def requestRootAccess(configsettings, noninteractive, verbose):
-    """
+    """If not already root, get root access and restart script.
+
     Request root access if we don't already have it. If we obtain it,
     restart script as root and update user credentials according to
-    config settings
+    config settings.
 
     Inputs:
     configsettings: dictionary-like type 'configparser.SectionProxy'
         containing settings loaded from config file
     noninteractive: boolean toggling whether to exit script if root
         credentials not already cached
-    verbose: boolean toggling whether to give small amount of extra
-        output
+    verbose: boolean toggling whether to give extra output
 
     Returns true if everything went okay, and false otherwise.
     """
@@ -129,7 +126,8 @@ def requestRootAccess(configsettings, noninteractive, verbose):
 
 
 def findDeviceLocation(destination, noninteractive, verbose, quiet):
-    """
+    """Return device and mount locations of destination device.
+
     Find device and mount location of destination drive given a string
     containing the destination location. Will prompt with list of
     possible devices if it cannot find device and mount location
@@ -140,9 +138,8 @@ def findDeviceLocation(destination, noninteractive, verbose, quiet):
         directory.
     noninteractive: boolean toggling whether to omit interactive error
         resolution
-    verbose: boolean toggling whether to give small amount of extra
-        output
-    quiet: boolean toggling whether to omit small amount of error output
+    verbose: boolean toggling whether to give extra output
+    quiet: boolean toggling whether to omit error output
 
     Returns a tuple containing device location and mount location as
     strings or a tuple of 2 empty strings if no device could be found.
@@ -223,9 +220,10 @@ def findDeviceLocation(destination, noninteractive, verbose, quiet):
 
 
 def getmvOptions(configsettings, noninteractive, verbose):
-    """
-    Determines which options to supply mv given the config settings and
-    returns a list of strings containing these options
+    """Return options to run mv with.
+
+    Determines which options to supply with mv given config settings.
+    Returns a list of strings containing these options
     """
     # Initialize list of options
     mvOptions = []
@@ -252,8 +250,9 @@ def getmvOptions(configsettings, noninteractive, verbose):
 
 
 def getSourceAndDestinationLists(sourceLocs, destinationLoc, verbose, quiet):
-    """
-    Get four lists corresponding to where our source and destination
+    """Return source and destination locations for files and dirs.
+
+    Return four lists corresponding to where our source and destination
     files and directories are.
 
     Inputs:
@@ -261,9 +260,8 @@ def getSourceAndDestinationLists(sourceLocs, destinationLoc, verbose, quiet):
         to files or directories
     destinationLoc: a string containing the destination file to write to
         or a destination directory to transfer to
-    verbose: boolean toggling whether to give small amount of extra
-        output
-    quiet: boolean toggling whether to omit small amount of error output
+    verbose: boolean toggling whether to give extra output
+    quiet: boolean toggling whether to omit error output
 
     Outputs:
     a tuple containing (sourceDirs, sourceFiles, destinationDirs,
@@ -325,7 +323,8 @@ def getSourceAndDestinationLists(sourceLocs, destinationLoc, verbose, quiet):
 
 def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
                         noninteractive):
-    """
+    """Remove unwanted files from file lists in place.
+
     Remove specific files from the list of files to move as determined
     by the instructions in the config file 'configsettings'.
 
@@ -408,8 +407,12 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
 
 def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
                          verbose, quiet):
-    """
-    Create directory tree structure given by 'destinationDirList'.
+    """Create necessary directories in destination device.
+
+    Note that if a directory fails to be created, none of its children
+    directories or files will be explicitely removed the directory and
+    file lists. Instead, mv will attempt to make them and most likely
+    fail.
     """
     # Determine whether to overwrite files with directories or to prompt
     overwrite = configsettings.getint('OverwriteDestinationFiles')
@@ -467,7 +470,8 @@ def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
 
 
 def moveFiles(sourceFiles, destinationFiles, mvOptions):
-    """
+    """Move files from source to destination.
+
     Use mv with options specified in mvoptions to move each file
     specified in sourceFiles to the corresponding destination specified
     in destinationFiles (the indices of each corresponding pair match).
@@ -485,7 +489,6 @@ def moveFiles(sourceFiles, destinationFiles, mvOptions):
 
 
 if __name__ == '__main__':
-
     # Parse input arguments
     parser = argparse.ArgumentParser(
             prog=NAME__,
