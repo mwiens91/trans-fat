@@ -613,6 +613,28 @@ def copyFiles(sourceFiles, destinationFiles, configsettings, noninteractive,
     return
 
 
+def unmount(mountLocation, verbose):
+    """Unmount device and return exit code."""
+    noiseLevel = []
+    if verbose:
+        noiseLevel += ['-v']
+
+    exitCode = subprocess.Popen(['sudo', 'umount', mountLocation]
+                                + noiseLevel).wait()
+    return exitCode
+
+
+def mount(mountLocation, verbose):
+    """Mount device and return exit code."""
+    noiseLevel = []
+    if verbose:
+        noiseLevel += ['-v']
+
+    exitCode = subprocess.Popen(['sudo', 'mount', mountLocation]
+                                + noiseLevel).wait()
+    return exitCode
+
+
 if __name__ == '__main__':
     # Parse input arguments
     parser = argparse.ArgumentParser(
@@ -865,12 +887,38 @@ if __name__ == '__main__':
 
 
 
-    # Unmount
+
+    # Unmount, fatsort, and remount if we're asked to
+    if not args.no_fatsort:
+        # Unmount
+        if args.verbose:
+            print("Unmounting %s . . ." % mntLoc)
+
+        if not unmount(mntLoc, args.verbose):
+            if not args.quiet:
+                print("ERROR: failed to unmount %s!" % mntLoc, file=sys.stderr)
+
+            print("Aborting %s" % NAME__)
+            sys.exit(1)
+        else:
+            if args.verbose:
+                print("Success: %s unmounted" % mntLoc)
+
+
+        # Fatsort
 
 
 
-    # Fatsort
+        # Remount
+        if args.verbose:
+            print("Remounting %s . . ." % mntLoc)
 
+        if not mount(mntLoc, args.verbose):
+            if not args.quiet:
+                print("ERROR: failed to remount %s!" % mntLoc, file=sys.stderr)
 
-
-    # Remount
+            print("Aborting %s" % NAME__)
+            sys.exit(1)
+        else:
+            if args.verbose:
+                print("Success: %s remounted" % mntLoc)
