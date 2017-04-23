@@ -305,7 +305,7 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
     imageOption = configsettings.getint('RemoveCue')
     logOption = configsettings.getint('RemoveLog')
     cueOption = configsettings.getint('RemoveCue')
-    m3uOption = configsettings.getint('RemoveM4U')
+    m3uOption = configsettings.getint('RemoveM3U')
     otherOption = configsettings.getint('RemoveOtherFiletypes')
 
     # What image file extensions we should detect (used in case
@@ -548,7 +548,7 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
                 if exitCode:
                     # Failed to convert
                     if not quiet:
-                        print("ERROR: failed to convert %s", % oldFile,
+                        print("ERROR: failed to convert %s" % oldFile,
                               file=sys.stderr)
                 else:
                     # Success. Add to list of converted files
@@ -577,7 +577,6 @@ def moveFiles(sourceFiles, destinationFiles, configsettings, noninteractive,
     specified in sourceFiles to the corresponding destination specified
     in destinationFiles (the indices of each corresponding pair match).
     """
-
     # Determines which options to supply with mv given config settings.
     mvOptions = []
 
@@ -705,10 +704,11 @@ if __name__ == '__main__':
         print("Making sure we aren't writing multiple files to a single "
               "file . . .")
 
-    if not os.path.isdir(args.destination) and len(args.sources) > 1:
+    if os.path.isfile(args.destination) and len(args.sources) > 1:
         if not args.quiet:
             print("ERROR: cannot write multiple files to a single file!",
                   file=sys.stderr)
+
         print("Aborting %s" % NAME__)
         sys.exit(1)
 
@@ -732,6 +732,7 @@ if __name__ == '__main__':
             # Failed to run as root
             if not args.quiet:
                 print("ERROR: failed to run as root!", file=sys.stderr)
+
             print("Aborting %s" % NAME__)
             sys.exit(1)
         else:
@@ -753,6 +754,7 @@ if __name__ == '__main__':
             # fatsort unavailable
             if not args.quiet:
                 print("ERROR: fatsort not found!", file=sys.stderr)
+
             print("Aborting %s" % NAME__)
             sys.exit(1)
 
@@ -782,7 +784,6 @@ if __name__ == '__main__':
             print("Success\n\nFound device and mount locations:"
                   "\ndevice: %s\nmount: %s" % (devLoc, mntLoc),
                   end='\n\n')
-
 
 
 
@@ -849,15 +850,7 @@ if __name__ == '__main__':
 
 
 
-    # UNMOUNT
-
-
-
-    # FATSORT
-
-
-
-    # REMOUNT
+    # Delete temporary files
 
 
 
@@ -865,4 +858,16 @@ if __name__ == '__main__':
 
 
 
-    # Armin mode - rename destination directories
+    # If in armin mode, rename destination directories
+
+
+
+    # Unmount
+
+
+
+    # Fatsort
+
+
+
+    # Remount
