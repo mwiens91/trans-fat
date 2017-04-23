@@ -4,7 +4,7 @@
 - [x] Read config file
 - [x] Get root access
 - [x] Get device and mount location
-- [ ] Convert stuff
+- [x] Convert stuff
 - [ ] Move stuff
 - [ ] Unmount/mount stuff
 - [ ] fatsort stuff
