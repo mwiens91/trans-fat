@@ -33,7 +33,7 @@ def prompt(query):
     return result
 
 
-def fatsortAvailable(verbose, quiet):
+def fatsortAvailable():
     """
     Check to see if fatsort is available on the system.  Returns true or
     false.
@@ -42,13 +42,8 @@ def fatsortAvailable(verbose, quiet):
                                 stdout=subprocess.DEVNULL,
                                 stderr=subprocess.DEVNULL)
     exitCode = fatCheck.wait()
+    return bool(exitCode)
 
-    if exitCode == 0:
-        # fatsort successfully found
-        return True
-    else:
-        # fatsort not found
-        return False
 
 
 def requestRootAccess(configsettings, noninteractive, verbose, quiet):
@@ -628,7 +623,7 @@ if __name__ == '__main__':
         if verbose:
             print("Checking if fatsort is available . . .")
 
-        if fatsortAvailable(verbose, quiet):
+        if fatsortAvailable():
             # fatsort available
             if verbose:
                 print("Success: fatsort is available")
