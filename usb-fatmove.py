@@ -381,7 +381,7 @@ def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
 
     Note that if a directory fails to be created, none of its children
     directories or files will be explicitely removed the directory and
-    file lists. Instead, mv will attempt to make them and most likely
+    file lists. Instead, cp will attempt to make them and most likely
     fail.
     """
     # Determine whether to overwrite files with directories or to prompt
@@ -569,43 +569,46 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
     return convertedFiles
 
 
-def moveFiles(sourceFiles, destinationFiles, configsettings, noninteractive,
-              verbose):
-    """Move files from source to destination.
+def copyFiles(sourceFiles, destinationFiles, configsettings, noninteractive,
+              verbose, quiet):
+    """Copy files from source to destination.
 
-    Use mv with options specified in config settings to move each file
+    Use cp with options specified in config settings to copy each file
     specified in sourceFiles to the corresponding destination specified
     in destinationFiles (the indices of each corresponding pair match).
     """
-    # Determines which options to supply with mv given config settings.
-    mvOptions = []
+    # Determines which options to supply with cp given config settings.
+    cpOptions = []
 
     # Determine whether to overwrite destination files in case of
     # conflict
     overwritesetting = configsettings.getint('OverwriteDestinationFiles')
 
     if overwritesetting == YES:
-        # mv --force
-        mvOptions += ['-f']
+        # cp --force
+        cpOptions += ['-f']
     elif overwritesetting == PROMPT and not noninteractive:
-        # mv --interactive
-        mvOptions += ['-i']
+        # cp --interactive
+        cpOptions += ['-i']
     else:
-        # mv --no-clobber
-        mvOptions += ['-n']
+        # cp --no-clobber
+        cpOptions += ['-n']
 
     # Determine whether to be verbose
     if verbose:
-        mvOptions += ['-v']
+        cpOptions += ['-v']
 
-    # Move the files to the destination directory
-    # returns garbage for now, just for testing
+    # Copy the files to the destination directory
     for source, destination in zip(sourceFiles, destinationFiles):
-        moveProcess = subprocess.Popen(["echo", source, destination],
-                                       stdout=subprocess.PIPE)
-        output = moveProcess.communicate()[0].decode('ascii')
-        output = output.strip()
-        print(output)
+
+        # Give stdin and stdout to user and wait for completion
+        copyProcess = subprocess.Popen(["cp", source, destination] + cpOptions)
+        exitCode = copyProcess.wait()
+
+        if exitCode:
+            # Failed to copy
+            if not quiet:
+                print("ERROR: failed to copy %s" % source, file=sys.stderr)
 
     return
 
@@ -838,15 +841,15 @@ if __name__ == '__main__':
 
 
 
-    # Move source files to destination
+    # Copy source files to destination
     if args.verbose:
-        print("Moving files . . .")
+        print("Copying files . . .")
 
-    moveFiles(fromFiles, toFiles, cfgSettings, args.non_interactive,
-              args.verbose)
+    copyFiles(fromFiles, toFiles, cfgSettings, args.non_interactive,
+              args.verbose, args.quiet)
 
     if args.verbose:
-        print("Success: files moved")
+        print("Success: files copied")
 
 
 

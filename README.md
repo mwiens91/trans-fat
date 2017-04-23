@@ -5,6 +5,6 @@
 - [x] Get root access
 - [x] Get device and mount location
 - [x] Convert stuff
-- [ ] Move stuff
+- [x] Move stuff
 - [ ] Unmount/mount stuff
 - [ ] fatsort stuff
