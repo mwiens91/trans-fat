@@ -169,25 +169,23 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
     # of the ith device
     deviceListSep = [deviceList[i].split() for i in range(len(deviceList))]
 
-
     # Test if destinationLoc matches any mount locations
     for i in range(len(deviceList)):
-        # Find common path of destination location and mount location of
-        # the ith device
-        commonpath_ = os.path.commonpath([deviceListSep[i][1], destinationLoc])
+        deviceLoc = deviceListSep[i][0]
+        mountLoc = deviceListSep[i][1]
 
-        if commonpath_ == deviceListSep[i][1]:
+        if destinationLoc.startswith(mountLoc):
             # Found a match! Return device and mount location
-            return (deviceListSep[i][0], deviceListSep[i][1])
+            return (deviceLoc, mountLoc)
     else:
         if not noninteractive:
             # Something went wrong with the automation: if not set to
             # non-interactive mode, ask user if any of the FAT devices
-            # found match the target
+            # found earlier match the intended destination
 
             # Enumerate each device
             deviceListEnum = ["[%d] %s" % (i, deviceList[i-1])
-                              for i in range(1,len(deviceList)+1)
+                              for i in range(1, len(deviceList)+1)
                              ]
             # Add option to abort
             deviceListEnum.insert(0, "[0] abort!")
@@ -213,7 +211,7 @@ def findDeviceLocation(destinationLoc, noninteractive, verbose, quiet):
                 return ('','')
             else:
                 # Return requested device and mount location strings
-                return (deviceListSep[ans - 1][0], deviceListSep[ans - 1][1])
+                return (deviceListSep[ans-1][0], deviceListSep[ans-1][1])
         else:
             # Non-interactive mode is on, just return an empty string
             return ('','')
