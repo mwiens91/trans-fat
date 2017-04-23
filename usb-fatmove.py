@@ -332,39 +332,39 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
 
     # Find which files have extensions that we don't want and mark their
     # indices
-    for file in sourceFileList:
-        if file.lower().endswith(audioExt):
+    for file_ in sourceFileList:
+        if file_.lower().endswith(audioExt):
             # This is an audio file; keep this file for sure
             continue
-        elif file.lower().endswith(nonAudioExt):
+        elif file_.lower().endswith(nonAudioExt):
             # This matches one of the non-audio extensions. Find which
             # extension it is and remove the file from the file list as
             # instructed to by the config settings.
             for ext, removeOption in extensionList:
-                if file.lower().endswith(ext):
+                if file_.lower().endswith(ext):
                     # Extension matched! Do what config file says,
                     # prompting if necessary.
 
                     if ((removeOption == PROMPT
-                         and (noninteractive or prompt("Move '%s'?" % file)))
+                         and (noninteractive or prompt("Move '%s'?" % file_)))
                             or removeOption == NO):
                         # Keep the file in the file list
                         break
                     else:
                         # Add index to list of indices to remove
-                        indexList += [sourceFileList.index(file)]
+                        indexList += [sourceFileList.index(file_)]
         else:
             # This is some other kind of file. Do what config file says,
             # prompting if necessary.
 
             if ((otherOption == PROMPT
-                 and (noninteractive or prompt("Move '%s'?" % file)))
+                 and (noninteractive or prompt("Move '%s'?" % file_)))
                     or otherOption == NO):
                 # Keep the file in the file list
                 continue
             else:
                 # Add index to list of indices to remove
-                indexList += [sourceFileList.index(file)]
+                indexList += [sourceFileList.index(file_)]
 
     # Remove files we don't want from the file lists, going through the
     # indices in reverse order
