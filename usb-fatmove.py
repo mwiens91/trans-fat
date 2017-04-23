@@ -635,6 +635,17 @@ def mount(mountLocation, verbose):
     return exitCode
 
 
+def fatsort(mountLocation, verbose):
+    """fatsort device and return exit code."""
+    noiseLevel = []
+    if not verbose:
+        noiseLevel += ['-q']
+
+    exitCode = subprocess.Popen(['sudo', 'fatsort', mountLocation]
+                                + noiseLevel).wait()
+    return exitCode
+
+
 if __name__ == '__main__':
     # Parse input arguments
     parser = argparse.ArgumentParser(
@@ -904,10 +915,19 @@ if __name__ == '__main__':
             if args.verbose:
                 print("Success: %s unmounted" % mntLoc)
 
-
         # Fatsort
+        if args.verbose:
+            print("fatsorting %s . . ." % mntLoc)
 
+        if not fatsort(mntLoc, args.verbose):
+            if not args.quiet:
+                print("ERROR: failed to fatsort %s!" % mntLoc, file=sys.stderr)
 
+            print("Aborting %s" % NAME__)
+            sys.exit(1)
+        else:
+            if args.verbose:
+                print("Success: %s fatsorted" % mntLoc)
 
         # Remount
         if args.verbose:
