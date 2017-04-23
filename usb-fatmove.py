@@ -389,7 +389,7 @@ def filterOutExtensions(sourceFileList, destinationFileList,
             # prompting if necessary.
 
             if ((otherOption == PROMPT
-                 and (noninterative or prompt("Move '%s'?" % file)))
+                 and (noninteractive or prompt("Move '%s'?" % file)))
                 or otherOption == NO
                ):
                 # Keep the file in the file list
