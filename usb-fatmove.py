@@ -17,6 +17,7 @@ import os
 import sys
 import subprocess
 import distutils.util
+import shutil
 
 # Name of the program
 NAME__ = "usb-fatmove"
@@ -646,6 +647,42 @@ def fatsort(mountLocation, verbose):
     return exitCode
 
 
+def deleteSources(sources, doprompt, verbose, quiet):
+    """Delete a list of files and directories.
+
+    Removes the files and directories specified in list sources,
+    prompting if necessary.
+    """
+    for source in sources:
+        # Prompt to delete if necessary
+        if doprompt:
+            if not prompt("Remove %s?" % source):
+                # Don't delete this one
+                break
+
+        if verbose:
+            print("Removing %s" % source)
+
+        # Delete the source!
+        try:
+            if os.path.isfile(source):
+                os.remove(source)
+            elif os.path.isdir(source):
+                shutil.rmtree(source)
+            elif not os.path.exists(source):
+                # Nothing here
+                raise OSError
+            else:
+                # Something very strange happened
+                raise UserWarning
+        except (OSError, shutil.Error):
+            # Such error!
+            if not quiet:
+                print("ERROR: failed to remove %s" % source, file=sys.stderr)
+
+    return
+
+
 if __name__ == '__main__':
     # Parse input arguments
     parser = argparse.ArgumentParser(
@@ -901,12 +938,24 @@ if __name__ == '__main__':
     if args.verbose:
         print("Success: temp files removed")
 
-    # Delete source directory if asked to
 
 
+    # Delete source directories if asked we're asked to. Note that
+    # deleteSourceSetting - 1 is equivalent to a prompt flag, given the
+    # config setting constant definitions at the top of the file.
+    deleteSourceSetting = cfgSettings.getint("DeleteSources")
+    promptFlag = deleteSourceSetting - 1
 
-    # If in armin mode, rename destination directories
+    if (deleteSourceSetting
+       and not (args.non_interactive and promptFlag)):
+        # Remove sources
+        if args.verbose:
+            print("Removing source files and directories . . .")
 
+        deleteSources(args.sources, promptFlag, args.verbose, args.quiet)
+
+        if args.verbose:
+            print("Success: source files and directories removed")
 
 
 
