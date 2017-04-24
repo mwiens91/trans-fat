@@ -1,14 +1,32 @@
 #!/usr/bin/env python3
 # coding: utf-8
-"""Move files to a device and fatsort that device.
+"""Copy files to a device and fatsort that device.
 
-usb-fatmove
-~~~~~~~~~~~~~
+usb-fatmove - main script
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-description here
+Run this like on the command line like so:
 
-:copyright: year by my name, see AUTHORS for more details
-:license: license_name, see LICENSE for more details
+    $ usb-fatmove source1 source2 driveDestination
+
+or do
+
+    $ usb-fatmove -h
+
+to see how to be fancier. Or read the README.md. Anyway, 2 things not
+explained in either the help or the readme are as follows:
+
+1. Armin mode:
+    Armin mode is used to transfer episodes of the radio show "A State
+    of Trance". It has it's own settings group in the config.ini, and it
+    calls a function that changes specific directory names on the
+    destination devices to better specific directory names on that same
+    device. That's all.
+2. PROMPT vs --non-interactive:
+    In the config.ini file there are options to prompt for a number of
+    actions; however you can run usb-fatmove with a --non-interactive
+    flag. The two are often mutually exclusive, and in such cases, the
+    non-interactive flag always wins against a PROMPT option.
 """
 
 import argparse
@@ -29,11 +47,17 @@ PROMPT = 2
 
 
 def prompt(query):
-    """Prompt yes/no and return a boolean answer.
+    """Prompt a yes/no question and get an answer.
 
     A simple function to ask yes/no questions on the command line.
     Credit goes to Matt Stevenson. See:
     http://mattoc.com/python-yes-no-prompt-cli.html
+
+    Args:
+        query: A string containing a question.
+
+    Returns:
+        A boolean corresponding to the answer to the question asked.
     """
     sys.stdout.write("%s [y/n]: " % query)
     val = input().lower()
@@ -47,7 +71,16 @@ def prompt(query):
 
 
 def fatsortAvailable():
-    """Return true if fatsort is available and false otherwise."""
+    """Return true if fatsort is available and false otherwise.
+
+    Checks if fatsort is available.
+
+    Args:
+        None
+
+    Returns:
+        A boolean signaling whether fatsort is available.
+    """
     fatCheck = subprocess.Popen(["bash", "-c", "type fatsort"],
                                 stdout=subprocess.DEVNULL,
                                 stderr=subprocess.DEVNULL)
@@ -55,12 +88,11 @@ def fatsortAvailable():
     return bool(exitCode)
 
 
-def requestRootAccess(configsettings, noninteractive, verbose):
-    """If not already root, get root access and restart script.
+def requestRootAccess(configsettings, noninteractive=False, verbose=False):
+    """Ensure script is running as root.
 
-    Request root access if we don't already have it. If we obtain it,
-    restart script as root and update user credentials according to
-    config settings.
+    Return true if we're running as root; otherwise, obtain root
+    credentials and restart script as root.
 
     Inputs:
     configsettings: dictionary-like type 'configparser.SectionProxy'
@@ -708,7 +740,7 @@ if __name__ == '__main__':
     parser.add_argument(
             "--version",
             action='version',
-            version="%(prog)s 0.0.1")
+            version="%(prog)s 0.1.0")
     parser.add_argument(
             "--config-file",
             help="Use specified config file",
@@ -1022,3 +1054,7 @@ if __name__ == '__main__':
         else:
             if args.verbose:
                 print("Success: %s remounted" % mntLoc)
+
+    # Successful run
+    if args.verbose:
+        print("All done")

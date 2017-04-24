@@ -6,5 +6,5 @@
 - [x] Get device and mount location
 - [x] Convert stuff
 - [x] Move stuff
-- [ ] Unmount/mount stuff
-- [ ] fatsort stuff
+- [x] Unmount/mount stuff
+- [x] fatsort stuff

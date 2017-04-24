@@ -1,20 +1,30 @@
-"""Descriptive thing here
+"""Contains a function to rename "A State of Trance" directories.
 
 usb-fatmove - armin_rename
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:copyright: year by my name, see AUTHORS for more details
-:license: license_name, see LICENSE for more details
-ocstring goes here
+The directory name structure is meant to specifically target standard
+baby967 rips of Armin van Buuren's "A State Of Trance" radioshow (a
+webshow as of 2017), as they've been named from ~2014–2017, and likely
+the way they will continue to be named in the future.
 """
 
 import os
 import sys
 
 
-def arminRename(targetDirectory, quiet):
-    """does things and stuff"""
-    # Easiest if we move to targetDirectory, and move back later
+def arminRename(targetDirectory, quiet=False):
+    """Rename A State of Trance directories according to episode number.
+
+    Args:
+        targetDirectory: A string containing the path to the directory
+            containing the directories to be renamed.
+        quiet: A boolean toggling whether to supress error output.
+
+    Returns:
+        Nothing.
+    """
+    # It's easiest if we move to targetDirectory, and move back later
     oldCwd = os.getcwd()
     os.chdir(targetDirectory)
 
@@ -26,6 +36,8 @@ def arminRename(targetDirectory, quiet):
 
     # Rename episode directories to be only episode number
     for episode in dirs:
+        #TODO(mwiens91): Use regexp to capture special episode of form
+        #                xxx.y; e.g., ASOT 800.1
         epnum = episode[37:40]
 
         try:
