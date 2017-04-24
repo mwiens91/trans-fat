@@ -614,35 +614,35 @@ def copyFiles(sourceFiles, destinationFiles, configsettings, noninteractive,
     return
 
 
-def unmount(mountLocation, verbose):
+def unmount(deviceLocation, verbose):
     """Unmount device and return exit code."""
     noiseLevel = []
     if verbose:
         noiseLevel += ['-v']
 
-    exitCode = subprocess.Popen(['sudo', 'umount', mountLocation]
+    exitCode = subprocess.Popen(['sudo', 'umount', deviceLocation]
                                 + noiseLevel).wait()
     return exitCode
 
 
-def mount(mountLocation, verbose):
+def mount(deviceLocation, verbose):
     """Mount device and return exit code."""
     noiseLevel = []
     if verbose:
         noiseLevel += ['-v']
 
-    exitCode = subprocess.Popen(['sudo', 'mount', mountLocation]
+    exitCode = subprocess.Popen(['sudo', 'mount', deviceLocation]
                                 + noiseLevel).wait()
     return exitCode
 
 
-def fatsort(mountLocation, verbose):
+def fatsort(deviceLocation, verbose):
     """fatsort device and return exit code."""
     noiseLevel = []
     if not verbose:
         noiseLevel += ['-q']
 
-    exitCode = subprocess.Popen(['sudo', 'fatsort', mountLocation]
+    exitCode = subprocess.Popen(['sudo', 'fatsort', deviceLocation]
                                 + noiseLevel).wait()
     return exitCode
 
@@ -965,7 +965,7 @@ if __name__ == '__main__':
         if args.verbose:
             print("Unmounting %s . . ." % mntLoc)
 
-        if not unmount(mntLoc, args.verbose):
+        if not unmount(devLoc, args.verbose):
             if not args.quiet:
                 print("ERROR: failed to unmount %s!" % mntLoc, file=sys.stderr)
 
@@ -979,7 +979,7 @@ if __name__ == '__main__':
         if args.verbose:
             print("fatsorting %s . . ." % mntLoc)
 
-        if not fatsort(mntLoc, args.verbose):
+        if not fatsort(devLoc, args.verbose):
             if not args.quiet:
                 print("ERROR: failed to fatsort %s!" % mntLoc, file=sys.stderr)
 
@@ -993,7 +993,7 @@ if __name__ == '__main__':
         if args.verbose:
             print("Remounting %s . . ." % mntLoc)
 
-        if not mount(mntLoc, args.verbose):
+        if not mount(devLoc, args.verbose):
             if not args.quiet:
                 print("ERROR: failed to remount %s!" % mntLoc, file=sys.stderr)
 
