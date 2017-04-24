@@ -720,7 +720,7 @@ if __name__ == '__main__':
             action="store_true")
     parser.add_argument(
             "--armin",
-            help="Use 'ARMIN' settings from config file",
+            help="Armin mode",
             action="store_true")
     parser.add_argument(
             "--verbose",
@@ -920,6 +920,26 @@ if __name__ == '__main__':
 
     if args.verbose:
         print("Success: files copied")
+
+
+
+    # If in armin mode, rename destination directories. The function for
+    # this is in the module armin_rename.py.
+    if args.armin:
+        try:
+            import armin_rename
+
+            if args.verbose:
+                print("Renaming A State of Trance directories . . .")
+
+            armin_rename.arminRename(mntLoc, args.quiet)
+
+            if args.verbose:
+                print("Success: A State of Trance directories renamed")
+
+        except ImportError:
+            if not args.quiet:
+                print("ERROR: failed to import armin_rename!", file=sys.stderr)
 
 
 
