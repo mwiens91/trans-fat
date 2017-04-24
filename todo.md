@@ -1,17 +1,12 @@
-1. redo all documentation according to Google Python Style
-https://google.github.io/styleguide/pyguide.html
+1. Redo all documentation in accordance with [Google Python Style](https://google.github.io/styleguide/pyguide.html)
+2. Refactor error and runtime output into functions.
+3. Try seeing if we can split up the main script into several modules.
+4. Do (long overdue) testing.
+5. Work on improvements marked with __TODO__.
+6. Make the program installable (using pipi?)
+7. Think of a better name more specific to what the program does.
 
-2. refactor ERROR and verbose output into own functions (maybe an IO module?)
-
-3. try to refactor other functions into their own modules
-
-4. do long overdue testing
-
-5. attempt TODOs
-
-6. implement installation and pipi
-
-for later, the dependences we have are:
-bash
-fatsort
-ffmpeg
+For reference, the external programs we're using are:
+- bash
+- fatsort
+- ffmpeg
