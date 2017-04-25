@@ -392,7 +392,7 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
     for file_ in sourceFiles:
         if file_.lower().endswith(audioExt):
             # This is an audio file; keep this file for sure
-            continue
+            pass
         elif file_.lower().endswith(nonAudioExt):
             # This matches one of the non-audio extensions. Find which
             # extension it is and remove the file from the file list as
@@ -417,7 +417,7 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
                  and (noninteractive or prompt("Move '%s'?" % file_)))
                     or otherOption == NO):
                 # Keep the file in the file list
-                continue
+                pass
             else:
                 # Add index to list of indices to remove
                 indexList += [sourceFiles.index(file_)]
