@@ -1,28 +1,21 @@
-"""Contains a function to rename "A State of Trance" directories.
-
-trans-fat - armin
-~~~~~~~~~~~~~~~~~
-
-The directory name structure is meant to specifically target standard
-baby967 rips of Armin van Buuren's "A State Of Trance" radioshow (a
-webshow as of 2017), as they've been named from ~2014–2017, and likely
-the way they will continue to be named in the future.
-"""
+"""Contains functions for processing "A State of Trance" episodes."""
 
 import os
-import sys
+import sys  # only for error output
 
 
 def rename(targetDirectory, quiet=False):
     """Rename A State of Trance directories according to episode number.
 
+    [*] The directory name structure expected follows the form of
+    baby967's rips of Armin van Buuren's "A State Of Trance" radioshow
+    (a webshow as of 2017), as they've been named from ~2014–2017, and
+    likely the way they will continue to be named in the future.
+
     Args:
         targetDirectory: A string containing the path to the directory
-            containing the directories to be renamed.
+            containing the directories to be renamed. See [*] above
         quiet: A boolean toggling whether to supress error output.
-
-    Returns:
-        Nothing.
     """
     # It's easiest if we move to targetDirectory, and move back later
     oldCwd = os.getcwd()
@@ -36,8 +29,8 @@ def rename(targetDirectory, quiet=False):
 
     # Rename episode directories to be only episode number
     for episode in dirs:
-        #TODO(mwiens91): Use regexp to capture special episode of form
-        #                xxx.y; e.g., ASOT 800.1
+        # TODO(mwiens91): Use regexp to capture special episode of form
+        # xxx.y; e.g., ASOT 800.1
         epnum = episode[37:40]
 
         try:
@@ -54,4 +47,4 @@ def rename(targetDirectory, quiet=False):
 
 if __name__ == '__main__':
     # Self-test code
-    arminRename('/home/matt/Downloads/sample_armin', False)
+    rename('/home/matt/Downloads/sample_armin')

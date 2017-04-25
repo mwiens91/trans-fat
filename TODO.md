@@ -1,9 +1,15 @@
-1. Refactor error and runtime output into functions.
-2. Try seeing if we can split up the main script into several modules.
-3. Do (long overdue) testing.
-4. Work on improvements marked with __TODO__.
-5. Make the program installable (using pipi?)
-6. Think of a better name more specific to what the program does.
+For module stuff:
+- [x] work on documentation
+- [ ] create functions for verbose, aborting, error
+- [ ] make functions of a few of the things that main.py does itself
+- [ ] according to Google we should have a main fn and only call that for
+  self-test code
+
+
+1. Do (long overdue) testing.
+2. Work on improvements marked with __TODO__.
+3. Make the program installable (using pipi?)
+4. Think of a better name more specific to what the program does.
 
 For reference, the external programs we're using are:
 - bash
