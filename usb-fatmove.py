@@ -5,9 +5,9 @@
 usb-fatmove - main script
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Run this like on the command line like so:
+Run this on the command line like so:
 
-    $ usb-fatmove source1 source2 driveDestination
+    $ usb-fatmove source1 source2 pathOnDrive
 
 or do
 
@@ -18,15 +18,15 @@ explained in either the help or the readme are as follows:
 
 1. Armin mode:
     Armin mode is used to transfer episodes of the radio show "A State
-    of Trance". It has it's own settings group in the config.ini, and it
-    calls a function that changes specific directory names on the
-    destination devices to better specific directory names on that same
-    device. That's all.
+    of Trance". It differs from non-Armin mode in that it has its own
+    settings group in the config.ini, and that it calls a function that
+    renames certain directory names on the root of the destination
+    device.
 2. PROMPT vs --non-interactive:
-    In the config.ini file there are options to prompt for a number of
-    actions; however you can run usb-fatmove with a --non-interactive
-    flag. The two are often mutually exclusive, and in such cases, the
-    non-interactive flag always wins against a PROMPT option.
+    In the config.ini file there are options to prompt for various
+    actions; however you can also run the program with a
+    --non-interactive flag. The two are mutually exclusive, and in such
+    cases where they fight, the non-interactive flag always wins.
 """
 
 import argparse
@@ -73,7 +73,7 @@ def prompt(query):
 def fatsortAvailable():
     """Return true if fatsort is available and false otherwise.
 
-    Checks if fatsort is available.
+    Checks if fatsort is available to the user.
 
     Args:
         None
@@ -91,19 +91,24 @@ def fatsortAvailable():
 def requestRootAccess(configsettings, noninteractive=False, verbose=False):
     """Ensure script is running as root.
 
-    Return true if we're running as root; otherwise, obtain root
-    credentials and restart script as root.
+    Return true if we're running as root, or false if we can't get root;
+    otherwise, obtain root credentials, terminate the program, and
+    restart as root.
 
-    Inputs:
-    configsettings: dictionary-like type 'configparser.SectionProxy'
-        containing settings loaded from config file
-    noninteractive: boolean toggling whether to exit script if root
-        credentials not already cached
-    verbose: boolean toggling whether to give extra output
+    Args:
+        configsettings: A dictionary-like 'configparser.SectionProxy'
+            object containing configuration settings from config.ini.
+        noninteractive: An optional boolean toggling whether to ask for
+            root if not already a root process.
+        verbose: An optional boolean toggling whether to give extra
+            output.
 
-    Returns true if everything went okay, and false otherwise.
+    Returns:
+        A boolean signaling whether we are root. Another common exit
+        from this function is through terminating the program and
+        restarting as root.
     """
-    # Check if we're already running as root; return if so
+    # Check if we're already running as root
     euid = os.geteuid()
 
     if euid == 0:
@@ -119,7 +124,7 @@ def requestRootAccess(configsettings, noninteractive=False, verbose=False):
     exitCode = rootCheck.wait()
 
     # If we're running non-interactively and we don't have access to
-    # root credentials, exit program
+    # root credentials, return false
     if noninteractive and exitCode:
         return False
 
@@ -127,29 +132,25 @@ def requestRootAccess(configsettings, noninteractive=False, verbose=False):
     # instead of 'sudo -k'); change this below if needed
     cacheOption = []
 
-    # Determine whether to cache credentials in proceeding block if we
-    # don't already have access to root credentials. exitCode will
-    # contain something non-zero if we don't already have root access.
+    # If we don't already have access to root credentials, determine
+    # whether to cache root credentials when we ask for them
     if exitCode:
         # Get config settings for caching root credentials
         cache_ = configsettings.getint('UpdateUserCredentials')
 
-        # Prompt whether to cache root credentials in accordance with
-        # config file
+        # Prompt whether to cache root credentials if necessary
         if cache_ == PROMPT:
-            # Prompt and store the boolean result in cache_, overwriting
-            # the the PROMPT value with YES or NO
+            # Store the answer in cache_
             cache_ = prompt("Remember root access passphrase?")
 
+        # Run 'sudo -k' if we aren't caching credentials
         if cache_ == NO:
-            # Run below command with 'sudo -k' vs 'sudo'
             cacheOption = ['-k']
 
-    # Let's run as root
+    # Replace currently-running process with root-access process
     if verbose:
         print("Restarting as root . . .")
 
-    # Replace currently-running process with root-access process
     sudoCmd = (['sudo']
                + cacheOption
                + [sys.executable]
@@ -158,37 +159,42 @@ def requestRootAccess(configsettings, noninteractive=False, verbose=False):
     os.execlpe('sudo', *sudoCmd)
 
 
-def findDeviceLocation(destination, noninteractive, verbose, quiet):
-    """Return device and mount locations of destination device.
+def findDeviceLocation(destinationPath, noninteractive=False, verbose=False,
+                       quiet=False):
+    """Return device and mount locations of a FAT drive.
 
-    Find device and mount location of destination drive given a string
-    containing the destination location. Will prompt with list of
-    possible devices if it cannot find device and mount location
-    automatically (provided quiet option is not enabled).
+    Find device and mount locations of the FAT device corresponding to
+    the supplied destination path. If these locations can't be found
+    automatically, find them interactively. If all of this fails, return
+    a 2-tuple of empty strings.
 
-    Inputs:
-    destination: string containing path to destination file or
-        directory.
-    noninteractive: boolean toggling whether to omit interactive error
-        resolution
-    verbose: boolean toggling whether to give extra output
-    quiet: boolean toggling whether to omit error output
+    Args:
+        destinationPath: A string containing a path somewhere on the
+            mounted device.
+        noninteractive: An optional boolean toggling whether to omit
+            interactively finding device and mount locations if doing so
+            automatically fails.
+        verbose: An optional boolean toggling whether to give extra
+            output.
+        quiet: An optional boolean toggling whether to omit error
+            output.
 
-    Returns a tuple containing device location and mount location as
-    strings or a tuple of 2 empty strings if no device could be found.
+    Returns:
+        A 2-tuple containing device location and mount location strings;
+        or, if these locations can't be found, a 2-tuple of empty
+        strings.
     """
-    # Make sure destination is absolute path
-    destination = os.path.abspath(destination)
+    # Make sure destination is an absolute path
+    destination = os.path.abspath(destinationPath)
 
     # Get list of FAT devices
     bashListCmd = "mount -t vfat | cut -f 1,3 -d ' '"
     deviceListProcess = subprocess.Popen(["bash", "-c", bashListCmd],
                                          stdout=subprocess.PIPE)
 
-    # Get the raw byte string of the stdout from the above process and
-    # decode it according to the ASCII character set
+    # Read the devices list from Popen
     deviceString = deviceListProcess.communicate()[0].decode('ascii')
-    deviceString = deviceString.strip()
+    deviceString = deviceString.rstrip()
 
     # Check if any FAT devices were found
     if deviceString == '':
@@ -200,11 +206,10 @@ def findDeviceLocation(destination, noninteractive, verbose, quiet):
 
     # For each device, split into device location and mount location.
     # So in deviceListSep, deviceListSep[i][0] gives the device location
-    # of the ith device and deviceListSep[i][1] gives the mount location
-    # of the ith device
+    # and deviceListSep[i][1] gives the mount location of the ith device
     deviceListSep = [deviceList[i].split() for i in range(len(deviceList))]
 
-    # Test if destination matches any mount locations
+    # Test if destination path matches any mount locations
     for i in range(len(deviceList)):
         deviceLoc = deviceListSep[i][0]
         mountLoc = deviceListSep[i][1]
@@ -248,73 +253,81 @@ def findDeviceLocation(destination, noninteractive, verbose, quiet):
             # Return requested device and mount location strings
             return (deviceListSep[ans-1][0], deviceListSep[ans-1][1])
     else:
-        # Non-interactive mode is on, just return an empty string
+        # Non-interactive mode is on, just return empty strings
         return ('', '')
 
 
-def getSourceAndDestinationLists(sourceLocs, destinationLoc, verbose, quiet):
-    """Return source and destination locations for files and dirs.
+def getCorrespondingPathsLists(sourcePaths, destinationPath, verbose=False,
+                               quiet=False):
+    """Return lists of corresponding source and destination paths.
 
-    Return four lists corresponding to where our source and destination
-    files and directories are.
+    Generate corresponding lists of paths for source and destination
+    files and source and destination directories. The indices of the two
+    file lists will correspond to each other, and similarly, the indices
+    of the two directory lists will correspond to each other.
 
-    Inputs:
-    sourceLocs: a list of source location strings, either corresponding
-        to files or directories
-    destinationLoc: a string containing the destination file to write to
-        or a destination directory to transfer to
-    verbose: boolean toggling whether to give extra output
-    quiet: boolean toggling whether to omit error output
+    Args:
+        sourcePaths: A list of strings containing source paths.
+        destinationPath: A string containing a destination path.
+        verbose: An optional boolean toggling whether to give extra
+            output.
+        quiet: An optional boolean toggling whether to omit error
+            output.
 
-    Outputs:
-    a tuple containing (sourceDirs, sourceFiles, destinationDirs,
+    Returns:
+        A 4-tuple containing (sourceDirs, sourceFiles, destinationDirs,
         destinationFiles) where ...
 
-    sourceDirs: a list of strings of absolute paths to source
-        directories
-    sourceFiles: a list of strings of absolute paths to source files
-    destinationDirs: a list of strings of absolute paths to destination
-        directories
-    destinationFiles: a list of strings of absolute paths to destination
-        files
-    """
-    # Get absolute paths of sources and destination
-    sourcePaths = [os.path.abspath(source) for source in sourceLocs]
-    destinationPath = os.path.abspath(destinationLoc)
+        sourceDirs: A list of strings containing absolute paths to
+            source directories.
+        sourceFiles: A list of strings containing absolute paths to
+            source files.
+        destinationDirs: A list of strings containing absolute paths to
+            destination directories.
+        destinationFiles: A list of strings containing absolute paths to
+            destination files.
 
-    # Initialize list of files and directories to move. The indices of
-    # corresponding source and destination lists will always be
-    # consistent
+        and where the indices of sourceDirs and destinationDirs
+        correspond to each other, and, similarly, where the indices of
+        sourceFiles and destinationFiles correspond to each other.
+        """
+    # Make sure source and destination paths are absolute paths
+    sourcePaths_ = [os.path.abspath(source) for source in sourcePaths]
+    destinationPath_ = os.path.abspath(destinationPath)
+
+    # Generate lists of source and destination paths
     sourceDirs = []
     sourceFiles = []
     destinationDirs = []
     destinationFiles = []
 
-    # Get list of files and directories to move
-    for source in sourcePaths:
-        # Get the parent directory of this source
+    # Go through each source
+    for source in sourcePaths_:
+        # Get the parent directory of the source so we can generate the
+        # destination path
         parent = os.path.dirname(source)
         parentlen = len(parent)
 
+        # Determine whether the source is a file or directory
         if os.path.isfile(source):
-            # Just a file, so add to the file list
+            # The source is a file, so add it to the file lists
             sourceFiles += [source]
-            destinationFiles += [destinationPath + source[parentlen:]]
+            destinationFiles += [destinationPath_ + source[parentlen:]]
         elif os.path.isdir(source):
-            # This is a directory, so let's go on an os.walk
+            # The source is a directory, so add itself and everything
+            # inside of it to the appropriate lists
             for root, _, files in os.walk(source):
-                # Add root to dir list and files in root to file list
                 sourceDirs += [root]
                 sourceFiles += [root + '/' + file for file in files]
-                destinationDirs += [destinationPath + root[parentlen:]]
-                destinationFiles += [destinationPath
+                destinationDirs += [destinationPath_ + root[parentlen:]]
+                destinationFiles += [destinationPath_
                                      + root[parentlen:]
                                      + '/'
                                      + file
                                      for file in files]
         else:
-            # Neither a file nor directory. Give a warning, but
-            # otherwise let the script proceed
+            # The source is neither a file nor directory. Give a
+            # warning.
             if not quiet:
                 print("ERROR: '%s' does not exist!" % source,
                       file=sys.stderr)
@@ -325,14 +338,28 @@ def getSourceAndDestinationLists(sourceLocs, destinationLoc, verbose, quiet):
 
 
 def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
-                        noninteractive):
-    """Remove unwanted files from file lists in place.
+                        noninteractive=False):
+    """Remove indices corresponding to unwanted files from lists.
 
-    Remove specific files from the list of files to move as determined
-    by the instructions in the config file 'configsettings'.
+    Filter out files of unwanted extensions from the list of source
+    files and destination files.
 
-    This function returns nothing, but does its work by modifying the
-    lists 'sourceFileList' and 'destinationFileList' in place.
+    [*] The indices of the source file list and destination file list
+    inputs must correspond to each other.
+
+    Args:
+        sourceFileList: A list of strings of absolute paths to source
+            files. See [*] above.
+        destinationFileList: A list of strings of absolute paths to
+            destination files. See [*] above.
+        configsettings: A dictionary-like 'configparser.SectionProxy'
+            object containing configuration settings from config.ini.
+        noninteractive: An optional boolean toggling whether to suppress
+            prompts to remove files that may have been requested in the
+            configuration file config.ini.
+
+    Returns:
+        Nothing. The work performed on the file lists is done in place.
     """
     # Load settings from config file
     imageOption = configsettings.getint('RemoveCue')
@@ -341,21 +368,20 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
     m3uOption = configsettings.getint('RemoveM3U')
     otherOption = configsettings.getint('RemoveOtherFiletypes')
 
-    # What image file extensions we should detect (used in case
-    # insensitive comparisons)
+    # Tuples of file extension types we care about
     audioExt = ('.flac', '.alac', '.aac', '.m4a', '.mp4', '.ogg', '.mp3')
     imageExt = ('.jpg', '.jpeg', '.bmp', '.png', '.gif')
     logExt = ('.log',)
     cueExt = ('.cue',)
     m3uExt = ('.m3u',)
 
-    # Pair the file extensions with their corresponding config settings
+    # Pair each file extension with its corresponding config setting
     extensionList = [[imageExt, imageOption],
                      [logExt, logOption],
                      [cueExt, cueOption],
                      [m3uExt, m3uOption]]
 
-    # Make a list of all non-audio extensions
+    # Gather all of the non-audio file extensions into one tuple
     nonAudioExt = ()
     for ext in extensionList:
         nonAudioExt += ext[0]
@@ -375,8 +401,8 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
             # instructed to by the config settings.
             for ext, removeOption in extensionList:
                 if file_.lower().endswith(ext):
-                    # Extension matched! Do what config file says,
-                    # prompting if necessary.
+                    # Extension matched! Remove the file according to
+                    # the config settings, prompting if necessary.
 
                     if ((removeOption == PROMPT
                          and (noninteractive or prompt("Move '%s'?" % file_)))
@@ -387,9 +413,8 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
                         # Add index to list of indices to remove
                         indexList += [sourceFileList.index(file_)]
         else:
-            # This is some other kind of file. Do what config file says,
-            # prompting if necessary.
-
+            # This is some other kind of file. Remove the file according
+            # to the config settings, prompting if necessary.
             if ((otherOption == PROMPT
                  and (noninteractive or prompt("Move '%s'?" % file_)))
                     or otherOption == NO):
@@ -408,32 +433,29 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
     return
 
 
-def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
-                         verbose, quiet):
-    """Create necessary directories in destination device.
+def createDirectories(directoriesList, configsettings, noninteractive=False,
+                      verbose=False, quiet=False):
+    """Create directories specified by a list.
 
-    Note that if a directory fails to be created, none of its children
-    directories or files will be explicitely removed the directory and
-    file lists. Instead, cp will attempt to make them and most likely
-    fail.
+    Create all of the directories specified in a list, asking whether to
+    overwrite any files blocking the way as necessary.
     """
-    # Determine whether to overwrite files with directories or to prompt
-    overwrite = configsettings.getint('OverwriteDestinationFiles')
+    # Determine whether to overwrite files with directories, or whether
+    # to prompt for this action
+    overwriteFiles = configsettings.getint('OverwriteDestinationFiles')
 
-    # But don't prompt if we're in non-interactive mode
-    if noninteractive and overwrite == PROMPT:
-        overwrite = NO
+    # However, don't prompt if we're in non-interactive mode
+    if noninteractive and overwriteFiles == PROMPT:
+        overwriteFiles = NO
 
-    # Create each directory in the natural order of os.walk - this is
-    # essential to maximize error catching
-    for targetDir in destinationDirsList:
+    # Create each directory
+    for targetDir in directoriesList:
         try:
-
+            # Check if the directory already exists; if it does, move on
+            # to the next directory.
             if verbose:
                 print("Checking %s . . ." % targetDir)
 
-            # Check if the directory already exists; move on to the next
-            # directory if so
             if os.path.isdir(targetDir):
                 # Already a directory
                 if verbose:
@@ -444,14 +466,13 @@ def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
             # Check if we're attempting to overwrite a file
             if os.path.isfile(targetDir):
                 # Determine whether to overwrite or abort
-                if (overwrite == YES
-                    or (overwrite == PROMPT
+                if (overwriteFiles == YES
+                    or (overwriteFiles == PROMPT
                         and prompt("%s is a file. Overwrite?" % targetDir))):
-                    # Overwrite - so remove the file that's in the way
+                    # Overwrite - remove the file that's in the way
                     os.remove(targetDir)
                 else:
                     # Don't overwrite file with directory.
-
                     if not quiet:
                         print("ERROR: attempting to overwrite a file with a "
                               "directory!",
@@ -459,7 +480,7 @@ def createDirsAndParents(destinationDirsList, configsettings, noninteractive,
 
                     raise OSError("Cannot overwrite a file with a directory!")
 
-            # Everything _should_ be okay. Create destination directory
+            # Create directory
             if verbose:
                 print("Creating %s" % targetDir)
 
@@ -897,8 +918,8 @@ if __name__ == '__main__':
         print("Getting lists of source and destination locations . . .")
 
     fromDirs, fromFiles, toDirs, toFiles = (
-        getSourceAndDestinationLists(args.sources, args.destination,
-                                     args.verbose, args.quiet))
+        getCorrespondingPathsLists(args.sources, args.destination,
+                                   args.verbose, args.quiet))
 
     if args.verbose:
         print("Success: source and destination locations found")
@@ -935,8 +956,8 @@ if __name__ == '__main__':
     if args.verbose:
         print("Creating destination directories . . .")
 
-    createDirsAndParents(toDirs, cfgSettings, args.non_interactive,
-                         args.verbose, args.quiet)
+    createDirectories(toDirs, cfgSettings, args.non_interactive, args.verbose,
+                      args.quiet)
 
     if args.verbose:
         print("Success: destination directories created")
