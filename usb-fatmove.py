@@ -433,20 +433,18 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
     return
 
 
-def createDirectories(directoriesList, configsettings, noninteractive=False,
-                      verbose=False, quiet=False):
+def createDirectories(directoriesList, noninteractive=False, verbose=False,
+                      quiet=False):
     """Create directories specified by a list.
 
     Create all of the directories specified in a list, asking whether to
     overwrite any files blocking the way as necessary.
     """
-    # Determine whether to overwrite files with directories, or whether
-    # to prompt for this action
-    overwriteFiles = configsettings.getint('OverwriteDestinationFiles')
-
-    # However, don't prompt if we're in non-interactive mode
-    if noninteractive and overwriteFiles == PROMPT:
-        overwriteFiles = NO
+    # Determine whether to prompt to overwrite files
+    if noninteractive:
+        doprompt=False
+    else:
+        doprompt=True
 
     # Create each directory
     for targetDir in directoriesList:
@@ -465,10 +463,8 @@ def createDirectories(directoriesList, configsettings, noninteractive=False,
 
             # Check if we're attempting to overwrite a file
             if os.path.isfile(targetDir):
-                # Determine whether to overwrite or abort
-                if (overwriteFiles == YES
-                    or (overwriteFiles == PROMPT
-                        and prompt("%s is a file. Overwrite?" % targetDir))):
+                # Prompt to overwrite if necessary
+                if (doprompt and prompt("%s is a file. Overwrite?" % targetDir)):
                     # Overwrite - remove the file that's in the way
                     os.remove(targetDir)
                 else:
@@ -956,8 +952,7 @@ if __name__ == '__main__':
     if args.verbose:
         print("Creating destination directories . . .")
 
-    createDirectories(toDirs, cfgSettings, args.non_interactive, args.verbose,
-                      args.quiet)
+    createDirectories(toDirs, args.non_interactive, args.verbose, args.quiet)
 
     if args.verbose:
         print("Success: destination directories created")
