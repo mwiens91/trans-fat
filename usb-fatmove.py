@@ -75,9 +75,6 @@ def fatsortAvailable():
 
     Checks if fatsort is available to the user.
 
-    Args:
-        None
-
     Returns:
         A boolean signaling whether fatsort is available.
     """
@@ -290,7 +287,7 @@ def getCorrespondingPathsLists(sourcePaths, destinationPath, verbose=False,
         and where the indices of sourceDirs and destinationDirs
         correspond to each other, and, similarly, where the indices of
         sourceFiles and destinationFiles correspond to each other.
-        """
+    """
     # Make sure source and destination paths are absolute paths
     sourcePaths_ = [os.path.abspath(source) for source in sourcePaths]
     destinationPath_ = os.path.abspath(destinationPath)
@@ -337,7 +334,7 @@ def getCorrespondingPathsLists(sourcePaths, destinationPath, verbose=False,
     return (sourceDirs, sourceFiles, destinationDirs, destinationFiles)
 
 
-def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
+def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
                         noninteractive=False):
     """Remove indices corresponding to unwanted files from lists.
 
@@ -348,9 +345,9 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
     inputs must correspond to each other.
 
     Args:
-        sourceFileList: A list of strings of absolute paths to source
+        sourceFiles: A list of strings of absolute paths to source
             files. See [*] above.
-        destinationFileList: A list of strings of absolute paths to
+        destinationFiles: A list of strings of absolute paths to
             destination files. See [*] above.
         configsettings: A dictionary-like 'configparser.SectionProxy'
             object containing configuration settings from config.ini.
@@ -391,7 +388,7 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
 
     # Find which files have extensions that we don't want and mark their
     # indices
-    for file_ in sourceFileList:
+    for file_ in sourceFiles:
         if file_.lower().endswith(audioExt):
             # This is an audio file; keep this file for sure
             continue
@@ -411,7 +408,7 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
                         break
                     else:
                         # Add index to list of indices to remove
-                        indexList += [sourceFileList.index(file_)]
+                        indexList += [sourceFiles.index(file_)]
         else:
             # This is some other kind of file. Remove the file according
             # to the config settings, prompting if necessary.
@@ -422,13 +419,13 @@ def filterOutExtensions(sourceFileList, destinationFileList, configsettings,
                 continue
             else:
                 # Add index to list of indices to remove
-                indexList += [sourceFileList.index(file_)]
+                indexList += [sourceFiles.index(file_)]
 
     # Remove files we don't want from the file lists, going through the
     # indices in reverse order
     for index in indexList[::-1]:
-        sourceFileList.pop(index)
-        destinationFileList.pop(index)
+        sourceFiles.pop(index)
+        destinationFiles.pop(index)
 
     return
 
@@ -439,12 +436,22 @@ def createDirectories(directoriesList, noninteractive=False, verbose=False,
 
     Create all of the directories specified in a list, asking whether to
     overwrite any files blocking the way as necessary.
+
+    Args:
+        directoriesList: A list of strings containing absolute paths to
+            directories to be created.
+        noninteractive: An optional boolean signaling not to overwrite
+            files with directories, and not to prompt for this.
+        verbose: An optional boolean toggling whether to give extra
+            output.
+        quiet: An optional boolean toggling whether to omit error
+            output.
     """
     # Determine whether to prompt to overwrite files
     if noninteractive:
-        doprompt=False
+        doprompt = False
     else:
-        doprompt=True
+        doprompt = True
 
     # Create each directory
     for targetDir in directoriesList:
@@ -464,7 +471,7 @@ def createDirectories(directoriesList, noninteractive=False, verbose=False,
             # Check if we're attempting to overwrite a file
             if os.path.isfile(targetDir):
                 # Prompt to overwrite if necessary
-                if (doprompt and prompt("%s is a file. Overwrite?" % targetDir)):
+                if doprompt and prompt("%s is a file. Overwrite?" % targetDir):
                     # Overwrite - remove the file that's in the way
                     os.remove(targetDir)
                 else:
@@ -490,15 +497,17 @@ def createDirectories(directoriesList, noninteractive=False, verbose=False,
 
 
 def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
-                      noninteractive, verbose, quiet):
-    """Convert audio files of various formats to mp3.
+                      noninteractive=False, verbose=False, quiet=False):
+    """Convert non-mp3 audio files to mp3.
 
     Uses FFmpeg to convert audio files with non-mp3 extensions (as
     specified in the config settings) to mp3s. Returns a list of paths
-    to the mp3 files created.
+    to the mp3 files created, and updates the source and destination
+    file lists in place, replacing the original files with the newly
+    converted files.
 
     The input arguments for the source and destination files are
-    expected to be in terms of absolute paths; furthermore, their
+    expected to be in terms of absolute paths; [*] furthermore, their
     indices are expected to correspond to each other.
 
     If the user has an old version of FFmpeg, it's quite possible that
@@ -506,14 +515,36 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
     versions this is done by default, so I haven't specified that option
     here.
 
-    TODO1: Implement the "prompt for convert" setting more intelligently.
-    Right now it asks for every single file it it has been instructed to
-    prompt. Probably what would be better is to assume that a 'yes' to
-    convert means a 'yes' for every other file to convert in that same
-    directory.
+    TODO(mwiens91): Implement the "prompt for convert" setting more
+    intelligently.  Right now it asks to convert every single file it
+    has been instructed to prompt for. Probably what would be better is
+    to assume that a 'yes' to convert means a 'yes' for every other file
+    to convert in that same directory.
 
-    TODO2: When a file is overwritten it has the potential to be
-    double-counted on the file transfer lists.
+    TODO(mwiens91): When a file is overwritten it has the potential to
+    be double-counted on the file transfer lists.
+
+    Args:
+        sourceFiles: A list of strings of absolute paths to source
+            files. See [*] above.
+        destinationFiles: A list of strings of absolute paths to
+            destination files. See [*] above.
+        configsettings: A dictionary-like 'configparser.SectionProxy'
+            object containing configuration settings from config.ini.
+        noninteractive: An optional boolean signalling to never ask to
+            convert files that it would otherwise prompt for, and
+            furthermore, to not do such conversions.
+        verbose: An optional boolean toggling whether to give extra
+            output.
+        quiet: An optional boolean toggling whether to omit both error
+            output and output to signal that the non-interactive flag
+            has prevented a conversion from taking place.
+
+    Returns:
+        A list of strings containing the absolute paths of the files
+        created by conversion. Also modifies the source and destination
+        file lists in place such that the original files are replaced by
+        the newly converted files.
     """
     # Quality setting for conversions. See:
     # https://trac.ffmpeg.org/wiki/Encode/MP3
@@ -571,12 +602,12 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
 
     # Convert each file as necessary
     for oldFile in sourceFiles:
-        for extension, promptOption in extensionList:
+        for extension, doprompt in extensionList:
             # If we match an extention, prompt if necessary
-            if (oldFile.lower().endswith(extension)
-                and (not promptOption
-                     or (not noninteractive
-                         and prompt("Convert %s?" % oldFile)))):
+            extensionMatch = oldFile.lower().endswith(extension)
+
+            if (extensionMatch and (not doprompt
+               or (not noninteractive and prompt("Convert %s?" % oldFile)))):
                 # Convert the file!
                 if not quiet:
                     print("Converting %s" % oldFile)
@@ -615,22 +646,43 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
 
                 # Move on to next file
                 break
+            elif extensionMatch and (doprompt and noninteractive):
+                # Non-interactive wins over prompt setting - so don't
+                # convert
+                if not quiet:
+                    print("Not converting %s" % oldFile)
 
     return convertedFiles
 
 
-def copyFiles(sourceFiles, destinationFiles, configsettings, noninteractive,
-              verbose, quiet):
-    """Copy files from source to destination.
+def copyFiles(sourceFiles, destinationFiles, configsettings,
+              noninteractive=False, verbose=False, quiet=False):
+    """Copy files from a source to a destination.
 
-    Use cp with options specified in config settings to copy each file
-    specified in sourceFiles to the corresponding destination specified
-    in destinationFiles (the indices of each corresponding pair match).
+    Use cp with options specified in config settings to copy each source
+    file into a destination file.
+
+    [*] The indices of the source file list and destination file list
+    inputs must correspond to each other.
+
+    Args:
+        sourceFiles: A list of strings of absolute paths to source
+            files. See [*] above.
+        destinationFiles: A list of strings of absolute paths to
+            destination files. See [*] above.
+        configsettings: A dictionary-like 'configparser.SectionProxy'
+            object containing configuration settings from config.ini.
+        noninteractive: An optional boolean signalling to never run cp
+            with its interactive flag.
+        verbose: An optional boolean toggling whether to run cp with its
+            verbose flag.
+        quiet: An optional boolean toggling whether to omit error
+            output.
     """
-    # Determines which options to supply with cp given config settings.
+    # Initialize list of options to run cp with
     cpOptions = []
 
-    # Determine whether to overwrite destination files in case of
+    # Determine whether to overwrite destination files if there's a
     # conflict
     overwritesetting = configsettings.getint('OverwriteDestinationFiles')
 
@@ -650,7 +702,6 @@ def copyFiles(sourceFiles, destinationFiles, configsettings, noninteractive,
 
     # Copy the files to the destination directory
     for source, destination in zip(sourceFiles, destinationFiles):
-
         # Give stdin and stdout to user and wait for completion
         copyProcess = subprocess.Popen(["cp", source, destination] + cpOptions)
         exitCode = copyProcess.wait()
@@ -663,8 +714,8 @@ def copyFiles(sourceFiles, destinationFiles, configsettings, noninteractive,
     return
 
 
-def unmount(deviceLocation, verbose):
-    """Unmount device and return exit code."""
+def unmount(deviceLocation, verbose=False):
+    """Unmount a device and return an exit code."""
     noiseLevel = []
     if verbose:
         noiseLevel += ['-v']
@@ -674,8 +725,8 @@ def unmount(deviceLocation, verbose):
     return exitCode
 
 
-def mount(deviceLocation, verbose):
-    """Mount device and return exit code."""
+def mount(deviceLocation, verbose=False):
+    """Mount a device and return an exit code."""
     noiseLevel = []
     if verbose:
         noiseLevel += ['-v']
@@ -685,8 +736,8 @@ def mount(deviceLocation, verbose):
     return exitCode
 
 
-def fatsort(deviceLocation, verbose):
-    """fatsort device and return exit code."""
+def fatsort(deviceLocation, verbose=False):
+    """fatsort a device and return an exit code."""
     noiseLevel = []
     if not verbose:
         noiseLevel += ['-q']
@@ -696,29 +747,38 @@ def fatsort(deviceLocation, verbose):
     return exitCode
 
 
-def deleteSources(sources, doprompt, verbose, quiet):
-    """Delete a list of files and directories.
+def deletePaths(paths, doprompt=True, verbose=False, quiet=False):
+    """Delete a list of files and directories possibly containing files.
 
-    Removes the files and directories specified in list sources,
-    prompting if necessary.
+    Removes the files and directories (recursively) specified, prompting
+    if necessary.
+
+    Args:
+        paths: A list of strings containing absolute paths.
+        doprompt: An optional boolean signalling to prompt before
+            deleting anything.
+        verbose: An optional boolean toggling whether to give extra
+            output.
+        quiet: An optional boolean toggling whether to omit error
+            output.
     """
-    for source in sources:
+    for thing in paths:
         # Prompt to delete if necessary
         if doprompt:
-            if not prompt("Remove %s?" % source):
-                # Don't delete this one
+            if not prompt("Remove %s?" % thing):
+                # Don't delete this thing
                 break
 
         if verbose:
-            print("Removing %s" % source)
+            print("Removing %s" % thing)
 
-        # Delete the source!
+        # Delete the thing!
         try:
-            if os.path.isfile(source):
-                os.remove(source)
-            elif os.path.isdir(source):
-                shutil.rmtree(source)
-            elif not os.path.exists(source):
+            if os.path.isfile(thing):
+                os.remove(thing)
+            elif os.path.isdir(thing):
+                shutil.rmtree(thing)
+            elif not os.path.exists(thing):
                 # Nothing here
                 raise OSError
             else:
@@ -727,7 +787,7 @@ def deleteSources(sources, doprompt, verbose, quiet):
         except (OSError, shutil.Error):
             # Such error!
             if not quiet:
-                print("ERROR: failed to remove %s" % source, file=sys.stderr)
+                print("ERROR: failed to remove %s" % thing, file=sys.stderr)
 
     return
 
@@ -736,23 +796,28 @@ if __name__ == '__main__':
     # Parse input arguments
     parser = argparse.ArgumentParser(
             prog=NAME__,
-            description="<program description goes here>")
+            description="%(prog)s"
+                        " - transfer audio files to a FAT device,"
+                        " convert them to mp3 along the way,"
+                        " leave behind unwanted files,"
+                        " and sort everything into alphabetic order"
+                        " - all in one command!")
     parser.add_argument(
             "sources",
             nargs='+',
             type=str,
-            help="Relative path to source directories or files")
+            help="path to source directories or files")
     parser.add_argument(
             "destination",
             type=str,
-            help="Relative path to destination directory or file")
+            help="path to destination directory or file")
     parser.add_argument(
             "-f", "--no-fatsort",
-            help="Do not unmount, fatsort, and remount",
+            help="do not unmount, fatsort, and remount",
             action="store_true")
     parser.add_argument(
             "-n", "--non-interactive",
-            help="Abort instead of interactively resolving errors",
+            help="never prompt user for input",
             action="store_true")
     parser.add_argument(
             "--version",
@@ -760,24 +825,24 @@ if __name__ == '__main__':
             version="%(prog)s 0.1.0")
     parser.add_argument(
             "--config-file",
-            help="Use specified config file",
+            help="use specified config file",
             type=str,
             default="config.ini")
     parser.add_argument(
             "--default",
-            help="Use default settings from config file",
+            help="use default settings from config file",
             action="store_true")
     parser.add_argument(
             "--armin",
-            help="Armin mode",
+            help="use Armin mode",
             action="store_true")
     parser.add_argument(
             "--verbose",
-            help="Give maximal output",
+            help="give maximal output",
             action="store_true")
     parser.add_argument(
             "--quiet", "--silent",
-            help="Give minimal output",
+            help="give minimal output",
             action="store_true")
     args = parser.parse_args()
 
@@ -790,7 +855,7 @@ if __name__ == '__main__':
         print("Reading config file '%s'. . ." % args.config_file)
 
     # Try reading config file specified, and exit if failure. If config
-    # can't read successfully it just returns an empty list.
+    # can't read successfully, it returns an empty list.
     if config.read(args.config_file) == []:
         if not args.quiet:
             print("ERROR: '"
@@ -802,8 +867,8 @@ if __name__ == '__main__':
 
     # Select which section of settings to use. The resulting
     # 'configparser.SectionProxy' behaves quite similarly to a
-    # dictionary.  See the config .ini file specified by the runtime
-    # argument '--config-file' to see config options available
+    # dictionary. See the config .ini file specified by the runtime
+    # argument --config-file to see config options available
     if args.default:
         # Use DEFAULT section of config file
         cfgSettings = config['DEFAULT']
@@ -1020,7 +1085,7 @@ if __name__ == '__main__':
         if args.verbose:
             print("Removing source files and directories . . .")
 
-        deleteSources(args.sources, promptFlag, args.verbose, args.quiet)
+        deletePaths(args.sources, promptFlag, args.verbose, args.quiet)
 
         if args.verbose:
             print("Success: source files and directories removed")
