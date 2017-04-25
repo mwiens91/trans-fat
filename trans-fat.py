@@ -2,16 +2,16 @@
 # coding: utf-8
 """Copy files to a device and fatsort that device.
 
-usb-fatmove - main script
-~~~~~~~~~~~~~~~~~~~~~~~~~
+trans-fat - main script
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Run this on the command line like so:
 
-    $ usb-fatmove source1 source2 pathOnDrive
+    $ trans-fat source1 source2 pathOnDrive
 
 or do
 
-    $ usb-fatmove -h
+    $ trans-fat -h
 
 to see how to be fancier. Or read the README.md. Anyway, 2 things not
 explained in either the help or the readme are as follows:
@@ -39,7 +39,7 @@ import shutil
 import armin
 
 # Name of the program
-NAME__ = "usb-fatmove"
+NAME__ = "trans-fat"
 
 # Constants mirrored in the config file
 NO = 0

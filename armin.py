@@ -1,7 +1,7 @@
 """Contains a function to rename "A State of Trance" directories.
 
-usb-fatmove - armin
-~~~~~~~~~~~~~~~~~~~
+trans-fat - armin
+~~~~~~~~~~~~~~~~~
 
 The directory name structure is meant to specifically target standard
 baby967 rips of Armin van Buuren's "A State Of Trance" radioshow (a
