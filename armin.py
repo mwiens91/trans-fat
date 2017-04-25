@@ -1,7 +1,7 @@
 """Contains a function to rename "A State of Trance" directories.
 
-usb-fatmove - armin_rename
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+usb-fatmove - armin
+~~~~~~~~~~~~~~~~~~~
 
 The directory name structure is meant to specifically target standard
 baby967 rips of Armin van Buuren's "A State Of Trance" radioshow (a
@@ -13,7 +13,7 @@ import os
 import sys
 
 
-def arminRename(targetDirectory, quiet=False):
+def rename(targetDirectory, quiet=False):
     """Rename A State of Trance directories according to episode number.
 
     Args:

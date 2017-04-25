@@ -36,6 +36,7 @@ import sys
 import subprocess
 import distutils.util
 import shutil
+import armin
 
 # Name of the program
 NAME__ = "usb-fatmove"
@@ -1036,23 +1037,16 @@ if __name__ == '__main__':
 
 
 
-    # If in armin mode, rename destination directories. The function for
-    # this is in the module armin_rename.py.
+    # If in armin mode, rename destination directories
     if args.armin:
-        try:
-            import armin_rename
 
-            if args.verbose:
-                print("Renaming A State of Trance directories . . .")
+        if args.verbose:
+            print("Renaming A State of Trance directories . . .")
 
-            armin_rename.arminRename(mntLoc, args.quiet)
+        armin.rename(mntLoc, args.quiet)
 
-            if args.verbose:
-                print("Success: A State of Trance directories renamed")
-
-        except ImportError:
-            if not args.quiet:
-                print("ERROR: failed to import armin_rename!", file=sys.stderr)
+        if args.verbose:
+            print("Success: A State of Trance directories renamed")
 
 
 
