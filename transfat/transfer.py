@@ -111,7 +111,7 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
         Nothing. The work performed on the file lists is done in place.
     """
     # Load settings from config file
-    imageOption = configsettings.getint('RemoveCue')
+    imageOption = configsettings.getint('RemoveImages')
     logOption = configsettings.getint('RemoveLog')
     cueOption = configsettings.getint('RemoveCue')
     m3uOption = configsettings.getint('RemoveM3U')
