@@ -2,7 +2,7 @@
 
 import os
 import subprocess
-import sys  # ONLY FOR ERROR OUTPUT
+from . import talk
 
 
 def fatsortAvailable():
@@ -92,8 +92,7 @@ def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
         deviceListEnum.insert(0, "[0] abort!")
 
         # Prompt user for which device to use
-        if verbose:
-            print("Failed to find device automatically!")
+        talk.status("Failed to find device automatically!", verbose)
         print("Mounted FAT devices:", end='\n\n')
         print(*deviceListEnum, sep='\n', end='\n\n')
 
@@ -107,8 +106,7 @@ def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
             # User selected abort, so return empty strings
             return ('', '')
         elif ans > len(deviceListEnum)-1:
-            if not quiet:
-                print("ERROR: invalid index", file=sys.stderr)
+            talk.error("invalid index", quiet)
             return ('', '')
         else:
             # Return requested device and mount location strings

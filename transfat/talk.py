@@ -3,6 +3,9 @@
 import sys
 import distutils.util
 
+# Name of the program
+NAME = "trans-fat"
+
 
 def prompt(query):
     """Prompt a yes/no question and get an answer.
@@ -26,3 +29,36 @@ def prompt(query):
         sys.stdout.write("Please answer with y/n\n")
         return prompt(query)
     return result
+
+
+def status(message, verbose=True):
+    """Print a status update if a flag is true."""
+    if verbose:
+        print(message)
+    return
+
+
+def success(message, verbose=True):
+    """Print a success message if a flag is true."""
+    if verbose:
+        print("Success: " + message)
+    return
+
+
+def error(error_message, quiet=False):
+    """Print an error message to stderr if a flag is false."""
+    if not quiet:
+        print("ERROR: " + error_message, file=sys.stderr)
+    return
+
+
+def aborting():
+    """Prints that the program is aborting."""
+    print("Aborting %s" % NAME)
+    return
+
+
+if __name__ == '__main__':
+    # Self-test code
+    error("oh mah %s!" % "god")
+    aborting()

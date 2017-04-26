@@ -1,7 +1,7 @@
 """Contains functions for processing "A State of Trance" episodes."""
 
 import os
-import sys  # only for error output
+from . import talk
 
 
 def rename(targetDirectory, quiet=False):
@@ -36,8 +36,7 @@ def rename(targetDirectory, quiet=False):
         try:
             os.rename(episode, epnum)
         except OSError:
-            if not quiet:
-                print("ERROR: failed to rename" % episode, file=sys.stderr)
+            talk.error("failed to rename" % episode, quiet)
 
     # Clean up: move back to old cwd
     os.chdir(oldCwd)

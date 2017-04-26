@@ -3,7 +3,6 @@
 import os
 import shutil
 import subprocess
-import sys  # only used for error output
 from . import talk
 from .configconstants import NO, YES, PROMPT
 
@@ -79,11 +78,8 @@ def getCorrespondingPathsLists(sourcePaths, destinationPath, verbose=False,
         else:
             # The source is neither a file nor directory. Give a
             # warning.
-            if not quiet:
-                print("ERROR: '%s' does not exist!" % source,
-                      file=sys.stderr)
-            if verbose:
-                print("Proceeding anyway. . .")
+            talk.error("'%s' does not exist!" % source, quiet)
+            talk.status("Proceeding anyway", verbose)
 
     return (sourceDirs, sourceFiles, destinationDirs, destinationFiles)
 
@@ -213,13 +209,11 @@ def createDirectories(directoriesList, noninteractive=False, verbose=False,
         try:
             # Check if the directory already exists; if it does, move on
             # to the next directory.
-            if verbose:
-                print("Checking %s . . ." % targetDir)
+            talk.status("Checking %s" % targetDir, verbose)
 
             if os.path.isdir(targetDir):
                 # Already a directory
-                if verbose:
-                    print("%s already exists" % targetDir)
+                talk.status("%s already exists" % targetDir, verbose)
 
                 continue
 
@@ -232,22 +226,16 @@ def createDirectories(directoriesList, noninteractive=False, verbose=False,
                     os.remove(targetDir)
                 else:
                     # Don't overwrite file with directory.
-                    if not quiet:
-                        print("ERROR: attempting to overwrite a file with a "
-                              "directory!",
-                              file=sys.stderr)
+                    talk.error("attempting to overwrite a file with a"
+                               " directory!", quiet)
 
                     raise OSError("Cannot overwrite a file with a directory!")
 
             # Create directory
-            if verbose:
-                print("Creating %s" % targetDir)
-
+            talk.status("Creating %s" % targetDir, verbose)
             os.makedirs(targetDir)
         except OSError:
-            if not quiet:
-                print("ERROR: Failed to create %s!" % targetDir,
-                      file=sys.stderr)
+            talk.error("failed to create %s!" % targetDir, quiet)
 
     return
 
@@ -366,8 +354,7 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
                 or (not noninteractive
                     and talk.prompt("Convert %s?" % oldFile)))):
                 # Convert the file!
-                if not quiet:
-                    print("Converting %s" % oldFile)
+                talk.status("Converting %s" % oldFile, verbose)
 
                 newFile = oldFile[:-len(extension)] + '.mp3'
                 command = (['ffmpeg']
@@ -385,9 +372,7 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
 
                 if exitCode:
                     # Failed to convert
-                    if not quiet:
-                        print("ERROR: failed to convert %s" % oldFile,
-                              file=sys.stderr)
+                    talk.error("failed to convert %s" % oldFile, quiet)
                 else:
                     # Success. Add to list of converted files
                     convertedFiles += [newFile]
@@ -406,8 +391,7 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
             elif extensionMatch and (doprompt and noninteractive):
                 # Non-interactive wins over prompt setting - so don't
                 # convert
-                if not quiet:
-                    print("Not converting %s" % oldFile)
+                talk.status("Not converting %s" % oldFile, verbose)
 
     return convertedFiles
 
@@ -465,8 +449,7 @@ def copyFiles(sourceFiles, destinationFiles, configsettings,
 
         if exitCode:
             # Failed to copy
-            if not quiet:
-                print("ERROR: failed to copy %s" % source, file=sys.stderr)
+            talk.error("failed to copy %s" % source, quiet)
 
     return
 
@@ -493,8 +476,7 @@ def deletePaths(paths, doprompt=True, verbose=False, quiet=False):
                 # Don't delete this thing
                 break
 
-        if verbose:
-            print("Removing %s" % thing)
+        talk.status("Removing %s" % thing, verbose)
 
         # Delete the thing!
         try:
@@ -510,7 +492,6 @@ def deletePaths(paths, doprompt=True, verbose=False, quiet=False):
                 raise UserWarning
         except (OSError, shutil.Error):
             # Such error!
-            if not quiet:
-                print("ERROR: failed to remove %s" % thing, file=sys.stderr)
+            talk.error("failed to remove %s" % thing, quiet)
 
     return

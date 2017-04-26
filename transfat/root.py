@@ -67,8 +67,7 @@ def requestRootAccess(configsettings, noninteractive=False, verbose=False):
             cacheOption = ['-k']
 
     # Replace currently-running process with root-access process
-    if verbose:
-        print("Restarting as root . . .")
+    talk.status("Restarting as root", verbose)
 
     sudoCmd = (['sudo']
                + cacheOption
