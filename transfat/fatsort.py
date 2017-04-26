@@ -117,22 +117,22 @@ def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
 
 
 def unmount(deviceLocation, verbose=False):
-    """Unmount a device and return an exit code."""
+    """Unmount a device and return whether it was successful."""
     noiseLevel = []
     if verbose:
         noiseLevel += ['-v']
 
     exitCode = subprocess.Popen(['sudo', 'umount', deviceLocation]
                                 + noiseLevel).wait()
-    return exitCode
+    return bool(not exitCode)
 
 
 def fatsort(deviceLocation, verbose=False):
-    """fatsort a device and return an exit code."""
+    """fatsort a device and return whether it was successful."""
     noiseLevel = []
     if not verbose:
         noiseLevel += ['-q']
 
     exitCode = subprocess.Popen(['sudo', 'fatsort', deviceLocation]
                                 + noiseLevel).wait()
-    return exitCode
+    return bool(not exitCode)
