@@ -264,9 +264,6 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
     to assume that a 'yes' to convert means a 'yes' for every other file
     to convert in that same directory.
 
-    TODO(mwiens91): When a file is overwritten it has the potential to
-    be double-counted on the file transfer lists.
-
     Args:
         sourceFiles: A list of strings of absolute paths to source
             files. See [*] above.
@@ -334,12 +331,6 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
     else:
         logsetting += ['warning']
 
-    if noninteractive:
-        # Don't overwrite already converted files if they exist
-        overwritesetting = ['-n']
-    else:
-        overwritesetting = []
-
     # List of files converted
     convertedFiles = []
 
@@ -357,10 +348,10 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
 
                 newFile = oldFile[:-len(extension)] + '.mp3'
                 command = (['ffmpeg']
-                           + ['-i', oldFile]
-                           + overwritesetting
-                           + logsetting
+                           + ['-n']
                            + ['-hide_banner']
+                           + logsetting
+                           + ['-i', oldFile]
                            + ['-codec:a', 'libmp3lame']
                            + ['-qscale:a', QUALITY]
                            + [newFile])
