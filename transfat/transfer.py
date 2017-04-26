@@ -226,16 +226,15 @@ def createDirectories(directoriesList, noninteractive=False, verbose=False,
                     os.remove(targetDir)
                 else:
                     # Don't overwrite file with directory.
-                    talk.error("attempting to overwrite a file with a"
+                    talk.error("Attempting to overwrite a file with a"
                                " directory!", quiet)
-
                     raise OSError("Cannot overwrite a file with a directory!")
 
             # Create directory
             talk.status("Creating %s" % targetDir, verbose)
             os.makedirs(targetDir)
         except OSError:
-            talk.error("failed to create %s!" % targetDir, quiet)
+            talk.error("Failed to create %s!" % targetDir, quiet)
 
     return
 
@@ -372,7 +371,7 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
 
                 if exitCode:
                     # Failed to convert
-                    talk.error("failed to convert %s" % oldFile, quiet)
+                    talk.error("Failed to convert %s" % oldFile, quiet)
                 else:
                     # Success. Add to list of converted files
                     convertedFiles += [newFile]
@@ -449,7 +448,7 @@ def copyFiles(sourceFiles, destinationFiles, configsettings,
 
         if exitCode:
             # Failed to copy
-            talk.error("failed to copy %s" % source, quiet)
+            talk.error("Failed to copy %s" % source, quiet)
 
     return
 
@@ -492,6 +491,6 @@ def deletePaths(paths, doprompt=True, verbose=False, quiet=False):
                 raise UserWarning
         except (OSError, shutil.Error):
             # Such error!
-            talk.error("failed to remove %s" % thing, quiet)
+            talk.error("Failed to remove %s" % thing, quiet)
 
     return

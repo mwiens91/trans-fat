@@ -1,7 +1,7 @@
 """Contains functions for communicating with a user."""
 
-import sys
 import distutils.util
+import sys
 
 # Name of the program
 NAME = "trans-fat"

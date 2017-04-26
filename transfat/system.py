@@ -55,15 +55,15 @@ def requestRootAccess(configsettings, noninteractive=False, verbose=False):
     # whether to cache root credentials when we ask for them
     if exitCode:
         # Get config settings for caching root credentials
-        cache_ = configsettings.getint('UpdateUserCredentials')
+        cache = configsettings.getint('UpdateUserCredentials')
 
         # Prompt whether to cache root credentials if necessary
-        if cache_ == PROMPT:
-            # Store the answer in cache_
-            cache_ = talk.prompt("Remember root access passphrase?")
+        if cache == PROMPT:
+            # and store the answer in cache
+            cache = talk.prompt("Remember root access passphrase?")
 
         # Run 'sudo -k' if we aren't caching credentials
-        if cache_ == NO:
+        if cache == NO:
             cacheOption = ['-k']
 
     # Replace currently-running process with root-access process

@@ -37,14 +37,10 @@ from transfat import root
 from transfat import armin
 
 
-# Name of the program
-NAME__ = "trans-fat"
-
-
 if __name__ == '__main__':
     # Parse input arguments
     parser = argparse.ArgumentParser(
-            prog=NAME__,
+            prog='trans-fat',
             description="%(prog)s"
                         " - transfer audio files to a FAT device,"
                         " convert them to mp3 along the way,"

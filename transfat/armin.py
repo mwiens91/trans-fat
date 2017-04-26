@@ -7,17 +7,19 @@ from . import talk
 def rename(targetDirectory, quiet=False):
     """Rename A State of Trance directories according to episode number.
 
-    [*] The directory name structure expected follows the form of
-    baby967's rips of Armin van Buuren's "A State Of Trance" radioshow
-    (a webshow as of 2017), as they've been named from ~2014–2017, and
-    likely the way they will continue to be named in the future.
+    [*] The episode directory name structure expected follows the form
+    of baby967's rips of Armin van Buuren's "A State Of Trance"
+    radioshow (a webshow as of 2017), as they've been named from
+    ~2014–2017, and likely the way they will continue to be named in the
+    future.
 
     Args:
         targetDirectory: A string containing the path to the directory
             containing the directories to be renamed. See [*] above
         quiet: A boolean toggling whether to supress error output.
     """
-    # It's easiest if we move to targetDirectory, and move back later
+    # It's easiest if we move to the target directory, and move back
+    # later
     oldCwd = os.getcwd()
     os.chdir(targetDirectory)
 
@@ -36,7 +38,7 @@ def rename(targetDirectory, quiet=False):
         try:
             os.rename(episode, epnum)
         except OSError:
-            talk.error("failed to rename" % episode, quiet)
+            talk.error("Failed to rename" % episode, quiet)
 
     # Clean up: move back to old cwd
     os.chdir(oldCwd)

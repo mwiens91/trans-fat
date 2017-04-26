@@ -106,7 +106,7 @@ def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
             # User selected abort, so return empty strings
             return ('', '')
         elif ans > len(deviceListEnum)-1:
-            talk.error("invalid index", quiet)
+            talk.error("Invalid index", quiet)
             return ('', '')
         else:
             # Return requested device and mount location strings
