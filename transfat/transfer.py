@@ -494,3 +494,13 @@ def deletePaths(paths, doprompt=True, verbose=False, quiet=False):
             talk.error("Failed to remove %s" % thing, quiet)
 
     return
+
+
+def deleteFiles(filePaths, quiet=False):
+    """Delete a list of files."""
+    for path in filePaths:
+        try:
+            os.remove(path)
+        except OSError:
+            talk.error("Failed to remove %s!" % path, quiet)
+    return

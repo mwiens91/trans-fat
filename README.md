@@ -3,4 +3,5 @@
 ## Work in progress!
 
 - [ ] test stuff
-- [ ] make stuff pretty
+- [x] make stuff pretty
+- [ ] make stuff even <strong>MORE</strong> pretty

@@ -1,10 +1,128 @@
-"""Contains functions related to root access."""
+"""Contains functions related to the system.
 
+Most of these functions are specific to trans-fat, but a few aren't. The
+ones that are specific will be marked so.
+"""
+
+import argparse
+import configparser
 import os
 import subprocess
 import sys
 from . import talk
 from .configconstants import NO, PROMPT
+
+
+def getRuntimeArguments():
+    """Return command line arguments as attributes of an object.
+
+    Specific to running trans-fat.
+
+    Returns:
+        An object of type 'argparse.Namespace' containing the runtime
+        arguments as attributes. See argparse documentation for more
+        details.
+    """
+    parser = argparse.ArgumentParser(
+            prog='trans-fat',
+            description="%(prog)s"
+                        " - transfer audio files to a FAT device,"
+                        " convert them to mp3 along the way,"
+                        " leave behind unwanted files,"
+                        " and sort everything into alphabetic order"
+                        " - all in one command!")
+    parser.add_argument(
+            "sources",
+            nargs='+',
+            type=str,
+            help="path to source directories or files")
+    parser.add_argument(
+            "destination",
+            type=str,
+            help="path to destination directory or file")
+    parser.add_argument(
+            "-f", "--no-fatsort",
+            help="do not unmount, fatsort, and remount",
+            action="store_true")
+    parser.add_argument(
+            "-n", "--non-interactive",
+            help="never prompt user for input",
+            action="store_true")
+    parser.add_argument(
+            "--version",
+            action='version',
+            version="%(prog)s 0.1.0")
+    parser.add_argument(
+            "--config-file",
+            help="use specified config file",
+            type=str,
+            default="config.ini")
+    parser.add_argument(
+            "--default",
+            help="use default settings from config file",
+            action="store_true")
+    parser.add_argument(
+            "--armin",
+            help="use Armin mode",
+            action="store_true")
+    parser.add_argument(
+            "--verbose",
+            help="give maximal output",
+            action="store_true")
+    parser.add_argument(
+            "--quiet", "--silent",
+            help="give minimal output",
+            action="store_true")
+    arguments = parser.parse_args()
+
+    return arguments
+
+
+def getConfigurationSettings(configPath, default=False, armin=False,
+                             quiet=False):
+    """Read settings from a config file and return settings.
+
+    Reads configuration settings from a file with the configparser
+    module, choosing between three sections of settings depending on the
+    flags given when calling this function. Specific to trans-fat.
+
+    Args:
+        configPath: A string containing the path to the configuration
+            file.
+        default: An optional boolean toggling whether to read the
+            'default' section of the config file.
+        armin: An optional boolean toggling whether to read the 'armin'
+            section of the config file.
+        quiet: An optional boolean toggling whether to omit error
+            output.
+
+    Returns:
+        A dictionary-like 'configparser.sectionproxy' object containing
+        the settings loaded from the configuration file in the case of
+        sucess; otherwise returns None.
+    """
+    # Instantiate the parser
+    config = configparser.configparser()
+
+    # If the method read is unsuccessful it returns an empty list.
+    if config.read(configPath) == []:
+        # No good!
+        talk.error("'%s' is not a valid configuration file!" % configPath,
+                   quiet)
+        return None
+    else:
+        # Read successful. Select which section of config file to use
+        if default:
+            # Use default section of config file
+            configDict = config['default']
+        elif args.armin:
+            # Use armin section of config file
+            configDict = config['armin']
+        else:
+            # Use user section of config file
+            configDict = config['user']
+
+        return configDict
 
 
 def requestRootAccess(configsettings, noninteractive=False, verbose=False):
@@ -75,3 +193,9 @@ def requestRootAccess(configsettings, noninteractive=False, verbose=False):
                + sys.argv
                + [os.environ])
     os.execlpe('sudo', *sudoCmd)
+
+
+def abort(code):
+    """Exit program with an exit code."""
+    talk.aborting()
+    sys.exit(code)
