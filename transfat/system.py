@@ -102,7 +102,7 @@ def getConfigurationSettings(configPath, default=False, armin=False,
         sucess; otherwise returns None.
     """
     # Instantiate the parser
-    config = configparser.configparser()
+    config = configparser.ConfigParser()
 
     # If the method read is unsuccessful it returns an empty list.
     if config.read(configPath) == []:
@@ -115,7 +115,7 @@ def getConfigurationSettings(configPath, default=False, armin=False,
         if default:
             # Use default section of config file
             configDict = config['default']
-        elif args.armin:
+        elif armin:
             # Use armin section of config file
             configDict = config['armin']
         else:
