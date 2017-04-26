@@ -140,7 +140,7 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
 
     # Find which files have extensions that we don't want and mark their
     # indices
-    for file_ in sourceFiles:
+    for file_ in destinationFiles:
         if file_.lower().endswith(audioExt):
             # This is an audio file; keep this file for sure
             pass
@@ -161,7 +161,7 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
                         break
                     else:
                         # Add index to list of indices to remove
-                        indexList += [sourceFiles.index(file_)]
+                        indexList += [destinationFiles.index(file_)]
         else:
             # This is some other kind of file. Remove the file according
             # to the config settings, prompting if necessary.
@@ -172,7 +172,7 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
                 pass
             else:
                 # Add index to list of indices to remove
-                indexList += [sourceFiles.index(file_)]
+                indexList += [destinationFiles.index(file_)]
 
     # Remove files we don't want from the file lists, going through the
     # indices in reverse order
