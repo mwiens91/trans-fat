@@ -258,12 +258,6 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
     versions this is done by default, so I haven't specified that option
     here.
 
-    TODO(mwiens91): Implement the "prompt for convert" setting more
-    intelligently.  Right now it asks to convert every single file it
-    has been instructed to prompt for. Probably what would be better is
-    to assume that a 'yes' to convert means a 'yes' for every other file
-    to convert in that same directory.
-
     Args:
         sourceFiles: A list of strings of absolute paths to source
             files. See [*] above.
@@ -316,33 +310,70 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
     if oggConvert:
         extensionList += [['.ogg', oggConvert - 1]]
 
+    # Make sure we don't prompt if we're in non-interactive mode
+    if noninteractive:
+        for pair in extensionList:
+            if pair[1] == PROMPT:
+                # Don't convert this extension
+                pairIndex = extensionList.index(pair)
+                extensionList.pop(pairIndex)
+
     # Return an empty list if we don't need to convert anything
     if not extensionList:
         return []
 
-    # We need to look for files to convert. Determine how noisy and how
-    # interactive FFmpeg should be.
-    logsetting = ['-loglevel']
-
+    # We need to look for files to convert. Determine how noisy FFmpeg
+    # should be.
     if quiet:
-        logsetting += ['fatal']
+        logsetting = 'fatal'
     elif verbose:
-        logsetting += ['info']
+        logsetting = 'info'
     else:
-        logsetting += ['warning']
+        logsetting = 'warning'
 
     # List of files converted
     convertedFiles = []
 
+    # Don't prompt more than once to convert the same file extension in
+    # the same directory.  Initialize a whitelist and blacklist for
+    # this, [**] which will contain lists of two-tuples of ("dirpath",
+    # "extension")
+    whitelist = []
+    blacklist = []
+
     # Convert each file as necessary
     for oldFile in sourceFiles:
-        for extension, doprompt in extensionList:
-            # If we match an extention, prompt if necessary
+        for extension, prompt in extensionList:
+            # Find if the extensions match
             extensionMatch = oldFile.lower().endswith(extension)
 
-            if (extensionMatch and (not doprompt
-                or (not noninteractive
-                    and talk.prompt("Convert %s?" % oldFile)))):
+            if extensionMatch:
+                # An extension matched!
+                if prompt:
+                    # Work out whether we're on the whitelist,
+                    # blacklist, or whether we should prompt for this
+                    # file. See [**] above for more details.
+                    container = os.path.dirname(oldFile)
+
+                    if (container, extension) in whitelist:
+                        # Convert the file
+                        pass
+                    elif (container, extension) in blacklist:
+                        # Move on to next file
+                        break
+                    else:
+                        # Prompt and modify white/black-lists
+                        # accordingly
+                        if talk.prompt(
+                           "Convert %s and other %s's in the same directory?"
+                           % (oldFile, extension)):
+                            # Add to whitelist and convert
+                            whitelist += [(container, extension)]
+                        else:
+                            # Add to blacklist and move on to next file
+                            blacklist += [(container, extension)]
+                            break
+
                 # Convert the file!
                 talk.status("Converting %s" % oldFile, verbose)
 
@@ -350,7 +381,7 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
                 command = (['ffmpeg']
                            + ['-n']
                            + ['-hide_banner']
-                           + logsetting
+                           + ['-loglevel', logsetting]
                            + ['-i', oldFile]
                            + ['-codec:a', 'libmp3lame']
                            + ['-qscale:a', QUALITY]
@@ -378,10 +409,6 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
 
                 # Move on to next file
                 break
-            elif extensionMatch and (doprompt and noninteractive):
-                # Non-interactive wins over prompt setting - so don't
-                # convert
-                talk.status("Not converting %s" % oldFile, verbose)
 
     return convertedFiles
 
