@@ -17,8 +17,10 @@ def getCorrespondingPathsLists(sourcePaths, destinationPath, verbose=False,
     of the two directory lists will correspond to each other.
 
     Args:
-        sourcePaths: A list of strings containing source paths.
-        destinationPath: A string containing a destination path.
+        sourcePaths: A list of strings containing source paths, which
+            can be files or directories.
+        destinationPath: A string containing a destination path for
+            where the source files/directories should be transfered to.
         verbose: An optional boolean toggling whether to give extra
             output.
         quiet: An optional boolean toggling whether to omit error
