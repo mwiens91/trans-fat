@@ -176,7 +176,7 @@ def main():
 
         talk.success("source files and directories removed", args.verbose)
 
-    # Unmount, fatsort, and remount if we're asked to
+    # Unmount and fatsort if we're asked to
     if not args.no_fatsort:
         # Unmount
         talk.status("Unmounting %s" % mntLoc, args.verbose)
@@ -195,15 +195,6 @@ def main():
             system.abort(1)
         else:
             talk.success("%s fatsorted" % mntLoc, args.verbose)
-
-        # Remount
-        talk.status("Remounting %s" % mntLoc, args.verbose)
-
-        if not fatsort.mount(devLoc, args.verbose):
-            talk.error("failed to remount %s!" % mntLoc, args.quiet)
-            system.abort(1)
-        else:
-            talk.success("%s remounted" % mntLoc, args.verbose)
 
     # Successful run
     talk.success("All done", args.verbose)

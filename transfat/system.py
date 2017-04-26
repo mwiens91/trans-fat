@@ -42,7 +42,7 @@ def getRuntimeArguments():
             help="path to destination directory or file")
     parser.add_argument(
             "-f", "--no-fatsort",
-            help="do not unmount, fatsort, and remount",
+            help="do not unmount and fatsort",
             action="store_true")
     parser.add_argument(
             "-n", "--non-interactive",

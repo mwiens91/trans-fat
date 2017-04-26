@@ -127,17 +127,6 @@ def unmount(deviceLocation, verbose=False):
     return exitCode
 
 
-def mount(deviceLocation, verbose=False):
-    """Mount a device and return an exit code."""
-    noiseLevel = []
-    if verbose:
-        noiseLevel += ['-v']
-
-    exitCode = subprocess.Popen(['sudo', 'mount', deviceLocation]
-                                + noiseLevel).wait()
-    return exitCode
-
-
 def fatsort(deviceLocation, verbose=False):
     """fatsort a device and return an exit code."""
     noiseLevel = []
