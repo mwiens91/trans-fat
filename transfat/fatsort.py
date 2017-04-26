@@ -75,7 +75,7 @@ def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
         deviceLoc = deviceListSep[i][0]
         mountLoc = deviceListSep[i][1]
 
-        if destination.startswith(mountLoc):
+        if os.path.commonpath((destination, mountLoc)) == mountLoc:
             # Found a match! Return device and mount location
             return (deviceLoc, mountLoc)
 
