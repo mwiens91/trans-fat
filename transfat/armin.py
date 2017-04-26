@@ -44,8 +44,3 @@ def rename(targetDirectory, quiet=False):
     os.chdir(oldCwd)
 
     return
-
-
-if __name__ == '__main__':
-    # Self-test code
-    rename('/home/matt/Downloads/sample_armin')
