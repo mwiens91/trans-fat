@@ -17,7 +17,7 @@ def fatsortAvailable():
                                 stdout=subprocess.DEVNULL,
                                 stderr=subprocess.DEVNULL)
     exitCode = fatCheck.wait()
-    return bool(exitCode)
+    return bool(not exitCode)
 
 
 def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
