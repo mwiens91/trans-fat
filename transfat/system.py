@@ -137,10 +137,10 @@ def getConfigurationSettings(configPath, default=False, armin=False,
         # Read successful. Select which section of config file to use
         if default:
             # Use default section of config file
-            configDict = config['default']
+            configDict = config['DEFAULT']
         elif armin:
             # Use armin section of config file
-            configDict = config['armin']
+            configDict = config['ARMIN']
         else:
             # Use user section of config file
             configDict = config['user']
