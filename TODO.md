@@ -2,7 +2,7 @@ An <strong>@</strong> means an entry is marked in the source code with a <em>TOD
 
 High priority
 --------
-- Make program installable
+- <em>Nothing to see here</em>
 
 Low priority
 --------

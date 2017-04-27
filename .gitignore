@@ -1,3 +1,8 @@
 # Compiled python files
 __pycache__/
 *.py[cod]
+
+# Install files
+*.egg-info/
+dist/
+build/

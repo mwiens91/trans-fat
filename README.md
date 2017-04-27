@@ -22,3 +22,12 @@ then <strong>trans-fat</strong> does some/all of the following:
 5. Unmount & clean-up
 
 ## Great, how do I install this?
+
+First you need to get some dependencies. Assuming you're on Debian (or similar) run
+```
+sudo apt-get install fatsort ffmpeg
+```
+Then to get the actual program run
+```
+sudo pip3 install 'trans-fat'
+```
