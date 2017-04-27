@@ -57,6 +57,10 @@ def getRuntimeArguments():
             action='version',
             version="%(prog)s " + VERSION)
     parser.add_argument(
+            "--find-config",
+            help="show location of config file and exit",
+            action="store_true")
+    parser.add_argument(
             "--config-file",
             help="use specified config file",
             type=str,
@@ -199,9 +203,10 @@ def requestRootAccess(configsettings, noninteractive=False, verbose=False):
     os.execlpe('sudo', *sudoCmd)
 
 
-def abort(code):
+def abort(code, quiet=False):
     """Exit program with an exit code."""
-    talk.aborting()
+    if not quiet:
+        talk.aborting()
     sys.exit(code)
 
 

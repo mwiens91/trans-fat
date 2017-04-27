@@ -38,6 +38,11 @@ def main():
     # Get runtime arguments
     args = system.getRuntimeArguments()
 
+    # If --find-config option, print location of config file and exit
+    if args.find_config:
+        print("config file located at " + system.getConfigurationFilePath())
+        system.abort(0, True)
+
     # Read the configuration file
     talk.status("Reading config file '%s'" % args.config_file, args.verbose)
 
