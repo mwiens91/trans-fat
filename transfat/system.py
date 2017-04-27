@@ -9,8 +9,8 @@ import configparser
 import os
 import subprocess
 import sys
+import transfat.config.constants
 from . import talk
-from .configconstants import NO, PROMPT
 
 
 def getRuntimeArguments():
@@ -25,7 +25,7 @@ def getRuntimeArguments():
     """
     NAME = 'trans-fat'
     VERSION = '0.1.0'
-
+    CONFIGPATH = getConfigurationFilePath()
 
     parser = argparse.ArgumentParser(
             prog=NAME,
@@ -60,7 +60,7 @@ def getRuntimeArguments():
             "--config-file",
             help="use specified config file",
             type=str,
-            default="config.ini")
+            default=CONFIGPATH)
     parser.add_argument(
             "--default",
             help="use default settings from config file",
@@ -180,12 +180,12 @@ def requestRootAccess(configsettings, noninteractive=False, verbose=False):
         cache = configsettings.getint('UpdateUserCredentials')
 
         # Prompt whether to cache root credentials if necessary
-        if cache == PROMPT:
+        if cache == transfat.config.constants.PROMPT:
             # and store the answer in cache
             cache = talk.prompt("Remember root access passphrase?")
 
         # Run 'sudo -k' if we aren't caching credentials
-        if cache == NO:
+        if cache == transfat.config.constants.NO:
             cacheOption = ['-k']
 
     # Replace currently-running process with root-access process
@@ -203,3 +203,8 @@ def abort(code):
     """Exit program with an exit code."""
     talk.aborting()
     sys.exit(code)
+
+
+def getConfigurationFilePath():
+    """Return a string containing the path of the configuration file."""
+    return os.path.dirname(transfat.config.constants.__file__) + '/config.ini'

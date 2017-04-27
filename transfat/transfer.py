@@ -4,7 +4,7 @@ import os
 import shutil
 import subprocess
 from . import talk
-from .configconstants import NO, YES, PROMPT
+from .config.constants import NO, YES, PROMPT
 
 
 def getCorrespondingPathsLists(sourcePaths, destinationPath, verbose=False,
