@@ -15,7 +15,7 @@ $ trans-fat source drive/destination
 
 then <strong>trans-fat</strong> does some/all of the following:
 
-1. Filter out any unwanted .logs, .cues., etc. in source
+1. Filter out any unwanted .logs, .cues, etc. in source
 2. Convert non-mp3s to temporary mp3s
 3. Transfer files to the destination
 4. Sort the drive into alphanumeric order
