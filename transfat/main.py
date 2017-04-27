@@ -67,6 +67,10 @@ def main():
             # Success
             talk.success("Running as root", args.verbose)
 
+    # Warn that this will take a bit of time if we're not fatsorting
+    if not args.quiet:
+        print("This may take a few minutes . . .")
+
     # Confirm that fatsort is installed
     if not args.no_fatsort:
         talk.status("Checking if fatsort is available", args.verbose)
