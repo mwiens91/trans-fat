@@ -1,9 +1,10 @@
-1. Do (long overdue) testing.
-2. Work on improvements marked with __TODO__.
-3. Make the program installable (using pipi?)
-4. Think of a better name more specific to what the program does.
+An <strong>@</strong> means an entry is marked in the source code with a <em>TODO</em>
 
-For reference, the external programs we're using are:
-- bash
-- fatsort
-- ffmpeg
+High priority
+--------
+- Make program installable
+
+Low priority
+--------
+- @ Use regexp to match ASOT episode names
+- Make version number
