@@ -17,6 +17,7 @@ setup(
         'Programming Language :: Python :: 3 :: Only',
     ],
     packages=['transfat', 'transfat.config'],
+    package_data={'transfat.config': ['config.ini']},
     entry_points={
         'console_scripts': ['trans-fat = transfat.main:main'],
     },
