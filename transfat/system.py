@@ -58,8 +58,9 @@ def getRuntimeArguments():
             version="%(prog)s " + VERSION)
     parser.add_argument(
             "--find-config",
+            nargs=0,
             help="show location of config file and exit",
-            action="store_true")
+            action=ConfigPrintAction)
     parser.add_argument(
             "--config-file",
             help="use specified config file",
@@ -84,6 +85,20 @@ def getRuntimeArguments():
     arguments = parser.parse_args()
 
     return arguments
+
+
+def getConfigurationFilePath():
+    """Return a string containing the path of the configuration file."""
+    return os.path.dirname(transfat.config.constants.__file__) + '/config.ini'
+
+
+class ConfigPrintAction(argparse.Action):
+    """Custom argparse action to print location of configuration file."""
+    def __init__(self, option_strings, *args, **kwargs):
+        super(ConfigPrintAction, self).__init__(option_strings, *args, **kwargs)
+    def __call__(self, parser, namespace, values, option_string=None):
+        print("config file located at %s" % getConfigurationFilePath())
+        sys.exit(0)
 
 
 def getConfigurationSettings(configPath, default=False, armin=False,
@@ -203,13 +218,7 @@ def requestRootAccess(configsettings, noninteractive=False, verbose=False):
     os.execlpe('sudo', *sudoCmd)
 
 
-def abort(code, quiet=False):
+def abort(code):
     """Exit program with an exit code."""
-    if not quiet:
-        talk.aborting()
+    talk.aborting()
     sys.exit(code)
-
-
-def getConfigurationFilePath():
-    """Return a string containing the path of the configuration file."""
-    return os.path.dirname(transfat.config.constants.__file__) + '/config.ini'
