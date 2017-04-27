@@ -7,4 +7,3 @@ High priority
 Low priority
 --------
 - @ Use regexp to match ASOT episode names
-- Make version number
