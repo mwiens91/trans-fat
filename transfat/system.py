@@ -24,7 +24,7 @@ def getRuntimeArguments():
         details.
     """
     NAME = 'trans-fat'
-    VERSION = '0.1.0'
+    VERSION = '0.1.2'
     CONFIGPATH = getConfigurationFilePath()
 
     parser = argparse.ArgumentParser(

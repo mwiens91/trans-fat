@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='trans-fat',
-    version='0.1.0',
+    version='0.1.2',
     description='Play audio files on your car stereo and maintain sanity',
     url='https://github.com/mwiens91/trans-fat',
     author='Matt Wiens',
@@ -16,7 +16,7 @@ setup(
         'Operating System :: Unix',
         'Programming Language :: Python :: 3 :: Only',
     ],
-    packages=['transfat'],
+    packages=['transfat', 'transfat.config'],
     entry_points={
         'console_scripts': ['trans-fat = transfat.main:main'],
     },
