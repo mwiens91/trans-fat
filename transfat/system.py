@@ -23,8 +23,12 @@ def getRuntimeArguments():
         arguments as attributes. See argparse documentation for more
         details.
     """
+    NAME = 'trans-fat'
+    VERSION = '0.1.0'
+
+
     parser = argparse.ArgumentParser(
-            prog='trans-fat',
+            prog=NAME,
             description="%(prog)s"
                         " - transfer audio files to a FAT device,"
                         " convert them to mp3 along the way,"
@@ -51,7 +55,7 @@ def getRuntimeArguments():
     parser.add_argument(
             "--version",
             action='version',
-            version="%(prog)s 0.1.0")
+            version="%(prog)s " + VERSION)
     parser.add_argument(
             "--config-file",
             help="use specified config file",
