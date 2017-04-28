@@ -7,3 +7,5 @@ High priority
 Low priority
 --------
 - @ Use regexp to match ASOT episode names
+- @ Make the program description displayed with --help less like a bad
+  advertisement

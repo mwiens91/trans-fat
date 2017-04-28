@@ -29,6 +29,7 @@ def getRuntimeArguments():
 
     parser = argparse.ArgumentParser(
             prog=NAME,
+            # TODO(mwiens91): Make this less . . .
             description="%(prog)s"
                         " - transfer audio files to a FAT device,"
                         " convert them to mp3 along the way,"
