@@ -1,8 +1,8 @@
-An <strong>@</strong> means an entry is marked in the source code with a <em>TODO</em>
+An **@** an entry is marked in the source code with a *TODO*
 
 High priority
 --------
-- <em>Nothing to see here</em>
+- *Nothing to see here*
 
 Low priority
 --------

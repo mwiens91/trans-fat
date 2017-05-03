@@ -3,10 +3,9 @@
 ## Purpose
 trans-fat's purpose is to make playing music files on your car stereo over USB not a total nightmare. Some car stereos play audio files from a (FAT-only) USB device in the order that the files were transfered to the device—which is in general not alphanumeric order. This means that when you put on an album, it might start from track 6, then go to track 9 or something. To make things worse, many of these stereos demand that your audio files be either MP3s or WMAs; so say good-bye to your FLACs and Oggs.
 
-Ideally, car stereos should not depend on these small details, but unfortunately, many do. That's where <strong>trans-fat</strong> comes in:
+Ideally, car stereos should not depend on these small details, but unfortunately, many do. That's where **trans-fat** comes in:
 
-
-<strong>trans-fat</strong> transfers normal audio files to FAT devices and worries about the annoying details of your car stereo so that you don't have to.
+**trans-fat** transfers normal audio files to FAT devices and worries about the annoying details of your car stereo so that you don't have to.
 
 ## What exactly does this do?
 
@@ -16,7 +15,7 @@ Say we run
 $ trans-fat source drive/destination
 ```
 
-then <strong>trans-fat</strong> does some/all of the following:
+then **trans-fat** does some/all of the following:
 
 1. Filter out any unwanted .logs, .cues, etc. in `source`
 2. Convert non-MP3s to temporary MP3s
