@@ -45,6 +45,10 @@ def getRuntimeArguments():
             help="do not unmount and fatsort",
             action="store_true")
     parser.add_argument(
+            "-s", "--sort-only",
+            help="only unmount and fatsort",
+            action="store_true")
+    parser.add_argument(
             "-n", "--non-interactive",
             help="never prompt user for input",
             action="store_true")

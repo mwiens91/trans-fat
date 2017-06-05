@@ -104,50 +104,75 @@ def main():
                   "\ndevice: %s\nmount: %s" % (devLoc, mntLoc),
                   end='\n\n')
 
-    # Get source and destination paths
-    talk.status("Getting lists of source and destination paths",
-                args.verbose)
+    # Transfer files
+    if not args.sort_only:
+        # Get source and destination paths
+        talk.status("Getting lists of source and destination paths",
+                    args.verbose)
 
-    _, fromFiles, toDirs, toFiles = (
-        transfer.getCorrespondingPathsLists(args.sources, args.destination,
-                                            args.verbose, args.quiet))
+        _, fromFiles, toDirs, toFiles = (
+            transfer.getCorrespondingPathsLists(args.sources, args.destination,
+                                                args.verbose, args.quiet))
 
-    talk.success("Source and destination locations found", args.verbose)
+        talk.success("Source and destination locations found", args.verbose)
 
-    # Filter out certain file types based on settings in config file
-    talk.status("Filtering out unwanted file types", args.verbose)
+        # Filter out certain file types based on settings in config file
+        talk.status("Filtering out unwanted file types", args.verbose)
 
-    transfer.filterOutExtensions(fromFiles, toFiles, cfgSettings,
-                                 args.non_interactive)
+        transfer.filterOutExtensions(fromFiles, toFiles, cfgSettings,
+                                     args.non_interactive)
 
-    talk.success("Filtering complete", args.verbose)
+        talk.success("Filtering complete", args.verbose)
 
-    # Perform necessary audio file conversions
-    talk.status("Starting to convert any audio files that need it",
-                args.verbose)
+        # Perform necessary audio file conversions
+        talk.status("Starting to convert any audio files that need it",
+                    args.verbose)
 
-    # Returns a list of temporary files to remove later
-    tmpFiles = transfer.convertAudioFiles(fromFiles, toFiles, cfgSettings,
-                                          args.non_interactive, args.verbose,
-                                          args.quiet)
+        # Returns a list of temporary files to remove later
+        tmpFiles = transfer.convertAudioFiles(fromFiles, toFiles, cfgSettings,
+                                              args.non_interactive,
+                                              args.verbose, args.quiet)
 
-    talk.success("Conversions finished", args.verbose)
+        talk.success("Conversions finished", args.verbose)
 
-    # Create necessary directories to transfer to
-    talk.status("Creating destination directories", args.verbose)
+        # Create necessary directories to transfer to
+        talk.status("Creating destination directories", args.verbose)
 
-    transfer.createDirectories(toDirs, args.non_interactive, args.verbose,
-                               args.quiet)
+        transfer.createDirectories(toDirs, args.non_interactive, args.verbose,
+                                   args.quiet)
 
-    talk.success("Destination directories created", args.verbose)
+        talk.success("Destination directories created", args.verbose)
 
-    # Copy source files to destination
-    talk.status("Copying files", args.verbose)
+        # Copy source files to destination
+        talk.status("Copying files", args.verbose)
 
-    transfer.copyFiles(fromFiles, toFiles, cfgSettings, args.non_interactive,
-                       args.verbose, args.quiet)
+        transfer.copyFiles(fromFiles, toFiles, cfgSettings, args.non_interactive,
+                           args.verbose, args.quiet)
 
-    talk.success("Files copied", args.verbose)
+        talk.success("Files copied", args.verbose)
+
+        # Delete temporary files
+        talk.status("Removing any temp files", args.verbose)
+
+        transfer.deleteFiles(tmpFiles)
+
+        talk.success("temp files removed", args.verbose)
+
+        # Delete source directories if asked we're asked to. Note that
+        # deleteSourceSetting - 1 is equivalent to a prompt flag, given
+        # the config setting constant definitions.
+        deleteSourceSetting = cfgSettings.getint("DeleteSources")
+        promptFlag = deleteSourceSetting - 1
+
+        if (deleteSourceSetting
+           and not (args.non_interactive and promptFlag)):
+            # Remove sources
+            talk.status("Removing source files and directories", args.verbose)
+
+            transfer.deletePaths(args.sources, promptFlag, args.verbose,
+                                 args.quiet)
+
+            talk.success("source files and directories removed", args.verbose)
 
     # If in armin mode, rename destination directories
     if args.armin:
@@ -156,29 +181,6 @@ def main():
         armin.rename(mntLoc, args.quiet)
 
         talk.success("A State of Trance directories renamed", args.verbose)
-
-    # Delete temporary files
-    talk.status("Removing any temp files", args.verbose)
-
-    transfer.deleteFiles(tmpFiles)
-
-    talk.success("temp files removed", args.verbose)
-
-    # Delete source directories if asked we're asked to. Note that
-    # deleteSourceSetting - 1 is equivalent to a prompt flag, given the
-    # config setting constant definitions.
-    deleteSourceSetting = cfgSettings.getint("DeleteSources")
-    promptFlag = deleteSourceSetting - 1
-
-    if (deleteSourceSetting
-       and not (args.non_interactive and promptFlag)):
-        # Remove sources
-        talk.status("Removing source files and directories", args.verbose)
-
-        transfer.deletePaths(args.sources, promptFlag, args.verbose,
-                             args.quiet)
-
-        talk.success("source files and directories removed", args.verbose)
 
     # Unmount and fatsort if we're asked to
     if not args.no_fatsort:

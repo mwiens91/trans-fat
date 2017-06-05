@@ -10,4 +10,3 @@ Low priority
 - make a zsh completion script
 - make a man page
 - create documentation
-- create fatsort only mode
