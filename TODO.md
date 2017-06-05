@@ -9,3 +9,7 @@ Low priority
 - @ Use regexp to match ASOT episode names
 - @ Make the program description displayed with --help less like a bad
   advertisement
+- make a zsh completion script
+- make a man page
+- create documentation
+- create fatsort only mode
