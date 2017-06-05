@@ -4,7 +4,7 @@ import distutils.util
 import sys
 
 # Name of the program
-NAME = "trans-fat"
+NAME = "transfat"
 
 
 def prompt(query):

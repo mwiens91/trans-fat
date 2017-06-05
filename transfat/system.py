@@ -1,6 +1,6 @@
 """Contains functions related to the system.
 
-Most of these functions are specific to trans-fat, but a few aren't. The
+Most of these functions are specific to transfat, but a few aren't. The
 ones that are specific will be marked so.
 """
 
@@ -16,14 +16,14 @@ from . import talk
 def getRuntimeArguments():
     """Return command line arguments as attributes of an object.
 
-    Specific to running trans-fat.
+    Specific to running transfat.
 
     Returns:
         An object of type 'argparse.Namespace' containing the runtime
         arguments as attributes. See argparse documentation for more
         details.
     """
-    NAME = 'trans-fat'
+    NAME = 'transfat'
     VERSION = '0.1.2'
     CONFIGPATH = getConfigurationFilePath()
 
@@ -108,7 +108,7 @@ def getConfigurationSettings(configPath, default=False, armin=False,
 
     Reads configuration settings from a file with the configparser
     module, choosing between three sections of settings depending on the
-    flags given when calling this function. Specific to trans-fat.
+    flags given when calling this function. Specific to transfat.
 
     Args:
         configPath: A string containing the path to the configuration

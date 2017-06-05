@@ -4,11 +4,11 @@
 
 Run this on the command line like so:
 
-    $ trans-fat source1 source2 pathOnDrive
+    $ transfat source1 source2 pathOnDrive
 
 or do
 
-    $ trans-fat -h
+    $ transfat -h
 
 to see how to be fancier. Or read the README.md. Anyway, 2 things not
 explained in either the help or the readme are as follows:
@@ -34,7 +34,7 @@ from transfat import transfer
 
 
 def main():
-    """The main script of trans-fat."""
+    """The main script of transfat."""
     # Get runtime arguments
     args = system.getRuntimeArguments()
 
