@@ -1,0 +1,79 @@
+.\" Manpage for transfat
+
+.TH transfat 1 "June 2017" "" ""
+
+.SH NAME
+transfat \- transfer and sort audio files to/on a FAT device
+
+.SH SYNOPSIS
+\fBtransfat\fR [\fIOPTIONS\fR] [\fISOURCES\fR] [\fIDESTINATION\fR]
+
+.SH DESCRIPTION
+\fItransfat\fR is a convenience program designed to make it painless to play music on certain car stereos; namely, car stereos that (1) only accept MP3 format and (2) do not alphanumerically play audio files within a directory. A few things are done when running this program: certain files are filtered out from the transfer list (e.g., CUEs, LOGs, etc), non-MP3 audio files are converted to MP3, the audio files are transferred to a device, the device is unmounted, and then the device is fatsorted.
+
+
+.SH OPTIONS
+.
+.TP
+\fB--armin\fR
+use armin mode, which is tailored to transfering baby967 rips of radio-show "A State of Trance". This uses the \fIARMIN\fR settings from configuration file, and additionally renames directories on \fIDESTINATION\fR to their episode numbers.
+.
+.
+.TP
+\fB--config-file\fR\fI=CONFIG_FILE\fR
+use the configuration file specified by \fICONFIG_FILE\fR. Note that the specified configuration file must conform to the scheme of the default \fIconfig.ini\fR.
+.
+.
+.TP
+\fB--default\fR
+use \fIDEFAULT\fR settings from configuration file
+.
+.
+.TP
+\fB-f, --no-fatsort\fR
+don't unmount or fatsort
+.
+.
+.TP
+\fB--find-config\fR
+display path to configuration file and exit
+.
+.
+.TP
+\fB-h --help\fR
+display help message and exit
+.
+.
+.TP
+\fB-n --non-interactive\fR
+never prompt user for input. Note that the configuration file specifies to prompt whether to take certain actions; this option suppresses all of those prompts.
+.
+.
+.TP
+\fB--quiet --silent\fR
+display minimal output
+.
+.
+.TP
+\fB--sort-only\fR
+unmount and fatsort the \fIDESTINATION\fR drive. Currently you need to pass in something to the \fISOURCES\fR argument, too, even though none of the sources will be used.
+.
+.
+.TP
+\fB--verbose\fR
+display maximal output
+.
+.
+.TP
+\fB--version\fR
+display version number and exit
+.
+
+.SH SEE ALSO
+fatsort(1)
+
+.SH BUGS
+No known bugs: please open an issue at \fIgithub.com/mwiens91/transfat\fR if you find one.
+
+.SH AUTHOR
+Matt Wiens <mwiens91 at gmail dot com>

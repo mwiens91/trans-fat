@@ -7,6 +7,3 @@ High priority
 Low priority
 --------
 - @ Use regexp to match ASOT episode names
-- make a zsh completion script
-- make a man page
-- create documentation

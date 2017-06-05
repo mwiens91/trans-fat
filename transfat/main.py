@@ -10,20 +10,7 @@ or do
 
     $ transfat -h
 
-to see how to be fancier. Or read the README.md. Anyway, 2 things not
-explained in either the help or the readme are as follows:
-
-1. Armin mode:
-    Armin mode is used to transfer episodes of the radio show "A State
-    of Trance". It differs from non-Armin mode in that it has its own
-    settings group in the config.ini, and that it calls a function that
-    renames certain directory names on the root of the destination
-    device.
-2. Configuration setting PROMPT vs --non-interactive:
-    In the config.ini file there are options to prompt for various
-    actions; however you can also run the program with a
-    --non-interactive flag. The two are mutually exclusive, and in such
-    cases where they fight, the non-interactive flag always wins.
+to see how to be fancier. Or read the README.md.
 """
 
 from transfat import armin

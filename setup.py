@@ -17,6 +17,7 @@ setup(
         'Operating System :: Unix',
         'Programming Language :: Python :: 3 :: Only',
     ],
+    data_files=[('/usr/local/man/man1', ['extras/transfat.1']),],
     packages=['transfat', 'transfat.config'],
     package_data={'transfat.config': ['config.ini']},
     entry_points={
