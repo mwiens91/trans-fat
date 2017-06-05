@@ -28,13 +28,9 @@ def getRuntimeArguments():
 
     parser = argparse.ArgumentParser(
             prog=NAME,
-            # TODO(mwiens91): Make this less . . .
             description="%(prog)s"
-                        " - transfer audio files to a FAT device,"
-                        " convert them to mp3 along the way,"
-                        " leave behind unwanted files,"
-                        " and sort everything into alphabetic order"
-                        " - all in one command!")
+                        " - transfer audio files to a FAT device"
+                        " and sort into natural order")
     parser.add_argument(
             "sources",
             nargs='+',
