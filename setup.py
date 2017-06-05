@@ -1,7 +1,9 @@
 from setuptools import setup
+from transfat.version import NAME, VERSION
 
 setup(
-    name='transfat',
+    name=NAME,
+    version=VERSION,
     description='Play audio files on your car stereo and maintain sanity',
     url='https://github.com/mwiens91/trans-fat',
     author='Matt Wiens',

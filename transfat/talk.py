@@ -2,9 +2,7 @@
 
 import distutils.util
 import sys
-
-# Name of the program
-NAME = "transfat"
+from .version import NAME
 
 
 def prompt(query):

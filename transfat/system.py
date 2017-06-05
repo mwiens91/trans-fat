@@ -11,6 +11,7 @@ import subprocess
 import sys
 import transfat.config.constants
 from . import talk
+from .version import NAME, VERSION
 
 
 def getRuntimeArguments():
@@ -23,8 +24,6 @@ def getRuntimeArguments():
         arguments as attributes. See argparse documentation for more
         details.
     """
-    NAME = 'transfat'
-    VERSION = '0.1.2'
     CONFIGPATH = getConfigurationFilePath()
 
     parser = argparse.ArgumentParser(
