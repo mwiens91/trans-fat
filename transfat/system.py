@@ -40,11 +40,12 @@ def getRuntimeArguments():
             "destination",
             type=str,
             help="path to destination directory or file")
-    parser.add_argument(
+    fatsortoptions = parser.add_mutually_exclusive_group()
+    fatsortoptions.add_argument(
             "-f", "--no-fatsort",
             help="do not unmount and fatsort",
             action="store_true")
-    parser.add_argument(
+    fatsortoptions.add_argument(
             "-s", "--sort-only",
             help="only unmount and fatsort",
             action="store_true")
@@ -66,19 +67,21 @@ def getRuntimeArguments():
             help="use specified config file",
             type=str,
             default=CONFIGPATH)
-    parser.add_argument(
+    settingsoptions = parser.add_mutually_exclusive_group()
+    settingsoptions.add_argument(
             "--default",
             help="use default settings from config file",
             action="store_true")
-    parser.add_argument(
+    settingsoptions.add_argument(
             "--armin",
             help="use Armin mode",
             action="store_true")
-    parser.add_argument(
+    noiseoptions = parser.add_mutually_exclusive_group()
+    noiseoptions.add_argument(
             "--verbose",
             help="give maximal output",
             action="store_true")
-    parser.add_argument(
+    noiseoptions.add_argument(
             "--quiet", "--silent",
             help="give minimal output",
             action="store_true")
