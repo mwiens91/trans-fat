@@ -5,7 +5,7 @@ transfat's purpose is to make playing music files on your car stereo over USB no
 
 Ideally, car stereos should not depend on these small details, but unfortunately, many do. That's where **transfat** comes in:
 
-**transfat** transfers normal audio files to FAT devices and worries about the annoying details of your car stereo so that you don't have to.
+**transfat** transfers audio files to FAT devices and worries about the annoying details of your car stereo so that you don't have to.
 
 ## What exactly does this do?
 
