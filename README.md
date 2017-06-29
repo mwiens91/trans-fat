@@ -17,11 +17,11 @@ $ transfat source drive/destination
 
 then **transfat** does some/all of the following:
 
-1. Filter out any unwanted .logs, .cues, etc. in `source`
-2. Convert non-MP3s to temporary MP3s
-3. Transfer files to  `destination`
-4. Sort `drive` into alphanumeric order
-5. Unmount `drive` & clean up
+1. Filters out any unwanted .logs, .cues, etc. in `source`
+2. Converts non-MP3s from `source` to temporary MP3s
+3. Transfers files to  `destination`
+4. Unmounts `drive` and sorts into alphanumeric order
+5. Cleans up intermediate files
 
 ## Great, how do I install this?
 
