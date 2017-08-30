@@ -2,8 +2,7 @@ An **@** an entry is marked in the source code with a *TODO*
 
 High priority
 --------
-- Stop program from breaking when attempting to rename to directory that
-  already exists
+- *nothing*
 
 Low priority
 --------

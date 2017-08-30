@@ -35,10 +35,19 @@ def rename(targetDirectory, quiet=False):
         # xxx.y; e.g., ASOT 800.1
         epnum = episode[37:40]
 
+        # Check if directory already exists. If it's empty, just copy
+        # into it. If non-empty, skip re-naming.
+        if os.path.exists(epnum):
+            if not (os.path.isdir(epnum) and os.listdir(epnum) == []):
+                # Directory name already taken!
+                talk.error("Failed to rename %s; %s already exists!"
+                        % (episode, targetDirectory + "/" + epnum))
+                continue;
+
         try:
             os.rename(episode, epnum)
         except OSError:
-            talk.error("Failed to rename" % episode, quiet)
+            talk.error("Failed to rename %s" % episode, quiet)
 
     # Clean up: move back to old cwd
     os.chdir(oldCwd)
