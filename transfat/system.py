@@ -104,8 +104,7 @@ class ConfigPrintAction(argparse.Action):
         sys.exit(0)
 
 
-def getConfigurationSettings(configPath, default=False, armin=False,
-                             quiet=False):
+def getConfigurationSettings(configPath, default=False, quiet=False):
     """Read settings from a config file and return settings.
 
     Reads configuration settings from a file with the configparser
@@ -117,8 +116,6 @@ def getConfigurationSettings(configPath, default=False, armin=False,
             file.
         default: An optional boolean toggling whether to read the
             'default' section of the config file.
-        armin: An optional boolean toggling whether to read the 'armin'
-            section of the config file.
         quiet: An optional boolean toggling whether to omit error
             output.
 
@@ -141,9 +138,6 @@ def getConfigurationSettings(configPath, default=False, armin=False,
         if default:
             # Use default section of config file
             configDict = config['DEFAULT']
-        elif armin:
-            # Use armin section of config file
-            configDict = config['ARMIN']
         else:
             # Use user section of config file
             configDict = config['user']

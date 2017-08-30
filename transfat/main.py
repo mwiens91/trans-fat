@@ -29,7 +29,7 @@ def main():
     talk.status("Reading config file '%s'" % args.config_file, args.verbose)
 
     cfgSettings = system.getConfigurationSettings(args.config_file,
-                                                  args.default, args.armin,
+                                                  args.default,
                                                   args.quiet)
     if not cfgSettings:
         # Failure
