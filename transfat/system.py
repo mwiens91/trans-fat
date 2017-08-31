@@ -1,4 +1,4 @@
-"""Contains functions related to the system.
+"""Contains functions related to interfacing with the parent shell.
 
 Most of these functions are specific to transfat, but a few aren't. The
 ones that are specific will be marked so.
