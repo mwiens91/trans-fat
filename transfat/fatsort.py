@@ -127,10 +127,10 @@ def unmount(deviceLocation, verbose=False):
     return bool(not exitCode)
 
 
-def fatsort(deviceLocation, verbose=False):
+def fatsort(deviceLocation, quiet=False):
     """fatsort a device and return whether it was successful."""
     noiseLevel = []
-    if not verbose:
+    if quiet:
         noiseLevel += ['-q']
 
     exitCode = subprocess.Popen(['sudo', 'fatsort', deviceLocation]

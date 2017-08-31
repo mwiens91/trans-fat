@@ -181,7 +181,7 @@ def main():
             talk.success("%s unmounted" % mntLoc, args.verbose)
 
         # Fatsort
-        talk.status("fatsorting %s" % mntLoc, args.verbose)
+        talk.status("fatsorting %s" % mntLoc, args.quiet)
 
         if not fatsort.fatsort(devLoc, args.verbose):
             talk.error("Failed to fatsort %s!" % mntLoc, args.quiet)
