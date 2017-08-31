@@ -13,8 +13,8 @@ or do
 to see how to be fancier. Or read the README.md.
 """
 
-from transfat import armin
 from transfat import fatsort
+from transfat import rename
 from transfat import system
 from transfat import talk
 from transfat import transfer
@@ -161,13 +161,13 @@ def main():
 
             talk.success("source files and directories removed", args.verbose)
 
-    # If in armin mode, rename destination directories
-    if args.armin:
-        talk.status("Renaming A State of Trance directories", args.verbose)
+    # If renaming directories, do so
+    if args.rename:
+        talk.status("Renaming any matching directories", args.verbose)
 
-        armin.rename(mntLoc, args.quiet)
+        rename.rename(mntLoc, args.quiet)
 
-        talk.success("A State of Trance directories renamed", args.verbose)
+        talk.success("Matching directories renamed", args.verbose)
 
     # Unmount and fatsort if we're asked to
     if not args.no_fatsort:

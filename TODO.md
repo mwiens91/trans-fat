@@ -6,6 +6,4 @@ High priority
 
 Low priority
 --------
-- @ Use regexp to match ASOT episode names
-- Add a rename mode that supports many radio shows; have matching config
-  file
+- *nothing*

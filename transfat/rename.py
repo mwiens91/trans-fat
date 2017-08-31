@@ -1,17 +1,22 @@
-"""Contains functions for processing "A State of Trance" episodes."""
+"""Contains a function to rename directories according to instructions.
+Current use of this function is for radio shows, but can be anything.
+"""
 
 import os
+import re
 from . import talk
+from .config.rename_targets import name_patterns
 
 
 def rename(targetDirectory, quiet=False):
-    """Rename A State of Trance directories according to episode number.
+    """Rename directories according to regex patterns.
 
-    [*] The episode directory name structure expected follows the form
-    of baby967's rips of Armin van Buuren's "A State Of Trance"
-    radioshow (a webshow as of 2017), as they've been named from
-    ~2014–2017, and likely the way they will continue to be named in the
-    future.
+    All regex patterns are given in list name_patterns, which lives in
+    rename_targets.py. This list is a list of lists. Each list element
+    contains (1) identifying regex to determine whether to rename a
+    given directory according to the list's instructions; (2) regex to
+    group items in the original directory name; (3) a string to insert
+    the matched groups into.
 
     Args:
         targetDirectory: A string containing the path to the directory
@@ -23,31 +28,30 @@ def rename(targetDirectory, quiet=False):
     oldCwd = os.getcwd()
     os.chdir(targetDirectory)
 
-    # Get a list of directories and files in the target directory
-    items = os.listdir()
+    # Test each directory name for a pattern match
+    for dir_name in os.listdir():
+        for pattern in name_patterns:
+            if re.search(pattern[0], dir_name):
+                # Directory name matched pattern
+                new_name = re.sub(pattern[1], pattern[2], dir_name)
 
-    # Filter out all non-Armin directories and files
-    dirs = [i for i in items if os.path.isdir(i) and i.startswith('Armin')]
+                # Check if directory already exists. If it's empty, just
+                # copy into it. If non-empty, skip renaming.
+                if os.path.exists(new_name):
+                    if not (os.path.isdir(new_name) and os.listdir(new_name) == []):
+                        # Directory name already taken! Move onto next
+                        # directory.
+                        talk.error("Failed to rename %s; %s already exists!"
+                                % (dir_name, targetDirectory + "/" + dir_name))
+                        break
 
-    # Rename episode directories to be only episode number
-    for episode in dirs:
-        # TODO(mwiens91): Use regexp to capture special episode of form
-        # xxx.y; e.g., ASOT 800.1
-        epnum = episode[37:40]
+                try:
+                    os.rename(dir_name, new_name)
+                except OSError:
+                    talk.error("Failed to rename %s" % dir_name, quiet)
 
-        # Check if directory already exists. If it's empty, just copy
-        # into it. If non-empty, skip re-naming.
-        if os.path.exists(epnum):
-            if not (os.path.isdir(epnum) and os.listdir(epnum) == []):
-                # Directory name already taken!
-                talk.error("Failed to rename %s; %s already exists!"
-                        % (episode, targetDirectory + "/" + epnum))
-                continue;
-
-        try:
-            os.rename(episode, epnum)
-        except OSError:
-            talk.error("Failed to rename %s" % episode, quiet)
+                # Move onto next directory, success or not.
+                break
 
     # Clean up: move back to old cwd
     os.chdir(oldCwd)

@@ -73,8 +73,8 @@ def getRuntimeArguments():
             help="use default settings from config file",
             action="store_true")
     settingsoptions.add_argument(
-            "--armin",
-            help="use Armin mode",
+            "--rename",
+            help="rename matching directories",
             action="store_true")
     noiseoptions = parser.add_mutually_exclusive_group()
     noiseoptions.add_argument(
