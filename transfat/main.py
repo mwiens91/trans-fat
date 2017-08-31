@@ -162,7 +162,7 @@ def main():
             talk.success("source files and directories removed", args.verbose)
 
     # If renaming directories, do so
-    if args.rename:
+    if args.rename or cfgSettings.getint('RenameByDefault'):
         talk.status("Renaming any matching directories", args.verbose)
 
         rename.rename(mntLoc, args.quiet)
