@@ -33,3 +33,4 @@ then to install transfat run
 ```
 sudo pip3 install transfat
 ```
+Giving root privileges to the last command isn't strictly necessary, but if you provide them, you'll get a useful `man` page for the program.
