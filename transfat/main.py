@@ -40,7 +40,7 @@ def main():
 
     # Get root access if we don't have it already, and restart with it
     # if we don't. No need to do this if we're not fatsorting.
-    if not args.no_fatsort:
+    if not args.no_sort:
         talk.status("Checking root access", args.verbose)
 
         rootAccess = system.requestRootAccess(cfgSettings,
@@ -59,7 +59,7 @@ def main():
         print("This may take a few minutes . . .")
 
     # Confirm that fatsort is installed
-    if not args.no_fatsort:
+    if not args.no_sort:
         talk.status("Checking if fatsort is available", args.verbose)
 
         if fatsort.fatsortAvailable():
@@ -92,7 +92,7 @@ def main():
                   end='\n\n')
 
     # Transfer files
-    if not args.sort_only:
+    if not args.only_sort:
         # Get source and destination paths
         talk.status("Getting lists of source and destination paths",
                     args.verbose)
@@ -170,7 +170,7 @@ def main():
         talk.success("Matching directories renamed", args.verbose)
 
     # Unmount and fatsort if we're asked to
-    if not args.no_fatsort:
+    if not args.no_sort:
         # Unmount
         talk.status("Unmounting %s" % mntLoc, args.verbose)
 

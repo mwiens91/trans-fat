@@ -40,41 +40,36 @@ def getRuntimeArguments():
             "destination",
             type=str,
             help="path to destination directory or file")
-    fatsortoptions = parser.add_mutually_exclusive_group()
-    fatsortoptions.add_argument(
-            "-f", "--no-fatsort",
-            help="do not unmount and fatsort",
-            action="store_true")
-    fatsortoptions.add_argument(
-            "-s", "--sort-only",
-            help="only unmount and fatsort",
-            action="store_true")
     parser.add_argument(
-            "-n", "--non-interactive",
-            help="never prompt user for input",
-            action="store_true")
+            "--config-file",
+            help="use specified config file",
+            type=str,
+            default=CONFIGPATH)
     parser.add_argument(
-            "--version",
-            action='version',
-            version="%(prog)s " + VERSION)
+            "--default",
+            help="use default settings from config file",
+            action="store_true")
     parser.add_argument(
             "--find-config",
             nargs=0,
             help="show location of config file and exit",
             action=ConfigPrintAction)
     parser.add_argument(
-            "--config-file",
-            help="use specified config file",
-            type=str,
-            default=CONFIGPATH)
-    settingsoptions = parser.add_mutually_exclusive_group()
-    settingsoptions.add_argument(
-            "--default",
-            help="use default settings from config file",
-            action="store_true")
-    settingsoptions.add_argument(
             "--rename",
-            help="rename matching directories",
+            help="rename name-pattern matched directories",
+            action="store_true")
+    parser.add_argument(
+            "--version",
+            action='version',
+            version="%(prog)s " + VERSION)
+    fatsortoptions = parser.add_mutually_exclusive_group()
+    fatsortoptions.add_argument(
+            "--no-sort",
+            help="do not unmount and fatsort",
+            action="store_true")
+    fatsortoptions.add_argument(
+            "--only-sort",
+            help="only unmount and fatsort",
             action="store_true")
     noiseoptions = parser.add_mutually_exclusive_group()
     noiseoptions.add_argument(
@@ -85,6 +80,11 @@ def getRuntimeArguments():
             "--quiet", "--silent",
             help="give minimal output",
             action="store_true")
+    parser.add_argument(
+            "-n", "--non-interactive",
+            help="never prompt user for input",
+            action="store_true")
+
     arguments = parser.parse_args()
 
     return arguments

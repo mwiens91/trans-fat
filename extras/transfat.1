@@ -1,6 +1,6 @@
 .\" Manpage for transfat
 
-.TH transfat 1 "June 2017" "" ""
+.TH transfat 1 "August 2017" "" ""
 
 .SH NAME
 transfat \- transfer and sort audio files to/on a FAT device
@@ -15,11 +15,6 @@ transfat \- transfer and sort audio files to/on a FAT device
 .SH OPTIONS
 .
 .TP
-\fB--armin\fR
-use armin mode, which is tailored to transfering baby967 rips of radio-show "A State of Trance". This uses the \fIARMIN\fR settings from configuration file, and additionally renames directories on \fIDESTINATION\fR to their episode numbers.
-.
-.
-.TP
 \fB--config-file\fR\fI=CONFIG_FILE\fR
 use the configuration file specified by \fICONFIG_FILE\fR. Note that the specified configuration file must conform to the scheme of the default \fIconfig.ini\fR.
 .
@@ -27,11 +22,6 @@ use the configuration file specified by \fICONFIG_FILE\fR. Note that the specifi
 .TP
 \fB--default\fR
 use \fIDEFAULT\fR settings from configuration file
-.
-.
-.TP
-\fB-f, --no-fatsort\fR
-don't unmount or fatsort
 .
 .
 .TP
@@ -45,8 +35,18 @@ display help message and exit
 .
 .
 .TP
+\fB--no-sort\fR
+don't unmount or fatsort the \fIDESTINATION\fR drive
+.
+.
+.TP
 \fB-n --non-interactive\fR
 never prompt user for input. Note that the configuration file specifies to prompt whether to take certain actions; this option suppresses all of those prompts.
+.
+.
+.TP
+\fB--only-sort\fR
+only unmount and fatsort the \fIDESTINATION\fR drive. Currently you need to pass in something to the \fISOURCES\fR argument, too, even though none of the sources will be used.
 .
 .
 .TP
@@ -55,8 +55,8 @@ display minimal output
 .
 .
 .TP
-\fB--sort-only\fR
-unmount and fatsort the \fIDESTINATION\fR drive. Currently you need to pass in something to the \fISOURCES\fR argument, too, even though none of the sources will be used.
+\fB--rename\fR
+rename name-pattern matched directories
 .
 .
 .TP
