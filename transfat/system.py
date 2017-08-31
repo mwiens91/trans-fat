@@ -33,7 +33,7 @@ def getRuntimeArguments():
                         " and sort into natural order")
     parser.add_argument(
             "sources",
-            nargs='+',
+            nargs='*',
             type=str,
             help="path to source directories or files")
     parser.add_argument(
@@ -55,6 +55,10 @@ def getRuntimeArguments():
             help="show location of config file and exit",
             action=ConfigPrintAction)
     parser.add_argument(
+            "--no-sort",
+            help="do not unmount and fatsort",
+            action="store_true")
+    parser.add_argument(
             "--rename",
             help="rename name-pattern matched directories",
             action="store_true")
@@ -62,15 +66,6 @@ def getRuntimeArguments():
             "--version",
             action='version',
             version="%(prog)s " + VERSION)
-    fatsortoptions = parser.add_mutually_exclusive_group()
-    fatsortoptions.add_argument(
-            "--no-sort",
-            help="do not unmount and fatsort",
-            action="store_true")
-    fatsortoptions.add_argument(
-            "--only-sort",
-            help="only unmount and fatsort",
-            action="store_true")
     noiseoptions = parser.add_mutually_exclusive_group()
     noiseoptions.add_argument(
             "--verbose",

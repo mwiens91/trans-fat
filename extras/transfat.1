@@ -11,6 +11,8 @@ transfat \- transfer and sort audio files to/on a FAT device
 .SH DESCRIPTION
 \fItransfat\fR is a convenience program designed to make it painless to play music on certain car stereos; namely, car stereos that (1) only accept MP3 format and (2) do not alphanumerically play audio files within a directory. A few things are done when running this program: certain files are filtered out from the transfer list (e.g., CUEs, LOGs, etc), non-MP3 audio files are converted to MP3, the audio files are transferred to a device, the device is unmounted, and then the device is fatsorted.
 
+Running without any \fISOURCES\fR simply doesn't do any transfering, so it's a good option if you only want to rename directories or sort your drive.
+
 
 .SH OPTIONS
 .
@@ -42,11 +44,6 @@ don't unmount or fatsort the \fIDESTINATION\fR drive
 .TP
 \fB-n --non-interactive\fR
 never prompt user for input. Note that the configuration file specifies to prompt whether to take certain actions; this option suppresses all of those prompts.
-.
-.
-.TP
-\fB--only-sort\fR
-only unmount and fatsort the \fIDESTINATION\fR drive. Currently you need to pass in something to the \fISOURCES\fR argument, too, even though none of the sources will be used.
 .
 .
 .TP
