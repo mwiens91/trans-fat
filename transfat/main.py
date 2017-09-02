@@ -25,6 +25,17 @@ def main():
     # Get runtime arguments
     args = system.getRuntimeArguments()
 
+    # Confirm that dependencies are installed
+    talk.status("Checking if dependencies are installed", args.verbose)
+
+    if system.dependenciesAvailable(args.no_sort, args.quiet, args.verbose):
+        # Depencies available
+        talk.success("Dependencies are installed", args.verbose)
+    else:
+        # Dependencies unavailable. dependenciesAvailable will spit out
+        # any necessary error dialogue.
+        system.abort(1)
+
     # Read the configuration file
     talk.status("Reading config file '%s'" % args.config_file, args.verbose)
 
@@ -58,18 +69,6 @@ def main():
     # Warn that this will take a bit of time if we're not fatsorting
     if not args.quiet:
         print("This may take a few minutes . . .")
-
-    # Confirm that fatsort is installed
-    if not args.no_sort:
-        talk.status("Checking if fatsort is available", args.verbose)
-
-        if fatsort.fatsortAvailable():
-            # fatsort available
-            talk.success("fatsort is available", args.verbose)
-        else:
-            # fatsort unavailable
-            talk.error("fatsort not found!", args.quiet)
-            system.abort(1)
 
     # Find device and mount location corresponding to provided
     # destination

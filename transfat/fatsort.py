@@ -5,21 +5,6 @@ import subprocess
 from . import talk
 
 
-def fatsortAvailable():
-    """Return true if fatsort is available and false otherwise.
-
-    Checks if fatsort is available to the user.
-
-    Returns:
-        A boolean signaling whether fatsort is available.
-    """
-    fatCheck = subprocess.Popen(["bash", "-c", "type fatsort"],
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL)
-    exitCode = fatCheck.wait()
-    return bool(not exitCode)
-
-
 def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
                         quiet=False):
     """Return device and mount locations of a FAT drive.

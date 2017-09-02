@@ -99,6 +99,52 @@ class ConfigPrintAction(argparse.Action):
         sys.exit(0)
 
 
+def dependenciesAvailable(no_fatsort=False, quiet=False, verbose=False):
+    """Return true if dependencies are installed and false otherwise.
+
+    Checks if fatsort and ffmpeg are installed.
+
+    Args:
+        no_fatsort: An optional boolean toggling whether to check if
+            fatsort is installed. fatsort isn't necessary for the
+            program if you aren't sorting.
+        quiet: An optional boolean toggling whether to omit error
+            output.
+        verbose: An optional boolean toggling whether to give extra
+            output.
+    Returns:
+        A boolean signaling whether dependicies are installed.
+    """
+    # Check if ffmpeg is installed
+    ffmpegCheck = subprocess.Popen(["bash", "-c", "type ffmpeg"],
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL)
+    ffmpegAvailable = not ffmpegCheck.wait()
+
+    if ffmpegAvailable:
+        talk.status("ffmpeg available", verbose)
+    else:
+        # ffmpeg not available!
+        talk.error("ffmpeg not installed!", quiet)
+
+    # Check if fatsort is installed, if necessary
+    if not no_fatsort:
+        fatCheck = subprocess.Popen(["bash", "-c", "type fatsort"],
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL)
+        fatsortAvailable = not fatCheck.wait()
+
+        if fatsortAvailable:
+            talk.status("fatsort available", verbose)
+        else:
+            # fatsort not available!
+            talk.error("fatsort not installed!", quiet)
+
+        return ffmpegAvailable and fatsortAvailable
+    else:
+        return ffmpegAvailable
+
+
 def getConfigurationSettings(configPath, default=False, quiet=False):
     """Read settings from a config file and return settings.
 
