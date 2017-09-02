@@ -86,8 +86,26 @@ def getRuntimeArguments():
 
 
 def getConfigurationFilePath():
-    """Return a string containing the path of the configuration file."""
-    return os.path.dirname(transfat.config.constants.__file__) + '/config.ini'
+    """Return a string containing the path of the configuration file.
+
+    Looks in ~/ and the config directory from the XDG spec (defaults to ~/.config)
+    first for a .transfatrc configuration file. If it can't find that,
+    then this returns the default config file.
+
+    Credit goes to Scott Stevenson (srstevenson on Github) for the XDG logic.
+    """
+    configdir = os.environ.get('XDG_CONFIG_HOME') or os.path.expandvars('$HOME/config')
+    homedir = os.path.expandvars('$HOME')
+
+    configdirRC = configdir + '/.transfatrc'
+    homedirRC = homedir + '/.transfatrc'
+
+    if os.path.isfile(configdirRC):
+        return configdirRC
+    elif os.path.isfile(homedirRC):
+        return homedirRC
+    else:
+        return os.path.dirname(transfat.config.constants.__file__) + '/config.ini'
 
 
 def getExampleRCPath():
