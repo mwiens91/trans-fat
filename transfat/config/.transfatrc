@@ -1,0 +1,27 @@
+# transfat config settings
+# Place this as a text file in ~/ or $XDG_CONFIG_HOME (defaults to
+# ~/config) with name .transfatrc
+#
+# e.g., ~/.transfatrc
+#
+# Options for all settings are denoted as follows:
+# 0 = no
+# 1 = yes
+# 2 = prompt for yes/no
+
+[user]
+UpdateUserCredentials = 1
+RemoveImages = 1
+RemoveLog = 1
+RemoveCue = 1
+RemoveM3U = 1
+RemoveOtherFiletypes = 1
+DeleteSources = 0
+RenameByDefault = 0
+OverwriteDestinationFiles = 2
+ConvertFLACtoMP3 = 1
+ConvertALACtoMP3 = 1
+ConvertAACtoMP3 = 1
+ConvertMP4toMP3 = 1
+ConvertM4AtoMP3 = 1
+ConvertOGGtoMP3 = 1

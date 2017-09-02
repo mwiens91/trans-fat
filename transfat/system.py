@@ -50,14 +50,14 @@ def getRuntimeArguments():
             help="use default settings from config file",
             action="store_true")
     parser.add_argument(
-            "--find-config",
-            nargs=0,
-            help="show location of config file and exit",
-            action=ConfigPrintAction)
-    parser.add_argument(
             "--no-sort",
             help="do not unmount and fatsort",
             action="store_true")
+    parser.add_argument(
+            "--print-config",
+            nargs=0,
+            help='print config file for use as a .transfatrc and exit',
+            action=ConfigPrintAction)
     parser.add_argument(
             "--rename",
             help="rename name-pattern matched directories",
@@ -90,12 +90,18 @@ def getConfigurationFilePath():
     return os.path.dirname(transfat.config.constants.__file__) + '/config.ini'
 
 
+def getExampleRCPath():
+    """Return a string with the path of an example .transfatrc file."""
+    return os.path.dirname(transfat.config.constants.__file__) + '/.transfatrc'
+
+
 class ConfigPrintAction(argparse.Action):
     """Custom argparse action to print location of configuration file."""
     def __init__(self, option_strings, *args, **kwargs):
         super(ConfigPrintAction, self).__init__(option_strings, *args, **kwargs)
     def __call__(self, parser, namespace, values, option_string=None):
-        print("config file located at %s" % getConfigurationFilePath())
+        with open(getExampleRCPath(), 'r') as transfatrc:
+            print(transfatrc.read())
         sys.exit(0)
 
 
