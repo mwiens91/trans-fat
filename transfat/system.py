@@ -110,7 +110,7 @@ def getConfigurationFilePath():
 
 def getExampleRCPath():
     """Return a string with the path of an example .transfatrc file."""
-    return os.path.dirname(transfat.config.constants.__file__) + '/.transfatrc'
+    return os.path.dirname(transfat.config.constants.__file__) + '/transfatrc'
 
 
 class ConfigPrintAction(argparse.Action):

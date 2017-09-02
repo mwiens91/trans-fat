@@ -19,7 +19,7 @@ setup(
     ],
     data_files=[('/usr/local/man/man1', ['extras/transfat.1']),],
     packages=['transfat', 'transfat.config'],
-    package_data={'transfat.config': ['config.ini']},
+    package_data={'transfat.config': ['config.ini', 'transfatrc']},
     entry_points={
         'console_scripts': ['transfat = transfat.main:main'],
     },
