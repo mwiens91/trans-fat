@@ -28,6 +28,7 @@ def main():
     # Read the configuration file
     talk.status("Reading config file '%s'" % args.config_file, args.verbose)
 
+    # This spits out an error message if there's a problem
     cfgSettings = system.getConfigurationSettings(args.config_file,
                                                   args.default,
                                                   args.quiet)
