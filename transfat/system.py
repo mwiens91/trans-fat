@@ -56,7 +56,7 @@ def getRuntimeArguments():
     parser.add_argument(
             "--print-config",
             nargs=0,
-            help='print config file for use as a .transfatrc and exit',
+            help='print example transfatrc and exit',
             action=ConfigPrintAction)
     parser.add_argument(
             "--rename",
@@ -94,27 +94,27 @@ def getConfigurationFilePath():
 
     Credit goes to Scott Stevenson (srstevenson on Github) for the XDG logic.
     """
-    configdir = os.environ.get('XDG_CONFIG_HOME') or os.path.expandvars('$HOME/config')
-    homedir = os.path.expandvars('$HOME')
+    configdir = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
+    homedir = os.path.expanduser("~")
 
-    configdirRC = configdir + '/.transfatrc'
-    homedirRC = homedir + '/.transfatrc'
+    configdirRC = configdir + "/transfat.conf"
+    homedirRC = homedir + "/.transfatrc"
 
     if os.path.isfile(configdirRC):
         return configdirRC
     elif os.path.isfile(homedirRC):
         return homedirRC
     else:
-        return os.path.dirname(transfat.config.constants.__file__) + '/config.ini'
+        return os.path.dirname(transfat.config.constants.__file__) + "/config.ini"
 
 
 def getExampleRCPath():
-    """Return a string with the path of an example .transfatrc file."""
+    """Return a string with the path of an example transfatrc file."""
     return os.path.dirname(transfat.config.constants.__file__) + '/transfatrc'
 
 
 class ConfigPrintAction(argparse.Action):
-    """Custom argparse action to print location of configuration file."""
+    """Custom argparse action to print example transfatrc file."""
     def __init__(self, option_strings, *args, **kwargs):
         super(ConfigPrintAction, self).__init__(option_strings, *args, **kwargs)
     def __call__(self, parser, namespace, values, option_string=None):
