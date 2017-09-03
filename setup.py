@@ -5,7 +5,7 @@ setup(
     name=NAME,
     version=VERSION,
     description='Play audio files on your car stereo and maintain sanity',
-    url='https://github.com/mwiens91/trans-fat',
+    url='https://github.com/mwiens91/transfat',
     author='Matt Wiens',
     author_email='mwiens91@gmail.com',
     license='MIT',
