@@ -25,12 +25,12 @@ then **transfat** does some/all of the following:
 
 ## Great, how do I install this?
 
-First you need to get some dependencies. Assuming you're on Ubuntu (or similar) run
+First you need to get some dependencies. Make sure you have
 ```
-sudo apt-get install fatsort ffmpeg
+fatsort ffmpeg
 ```
-then to install transfat run
+To install transfat run
 ```
-sudo pip3 install transfat
+pip3 install transfat
 ```
-Giving root privileges to the last command isn't strictly necessary, but if you provide them, you'll get a useful `man` page for the program.
+If you provide root access to the pip3 installation, you'll get a useful `man` page for the program.
