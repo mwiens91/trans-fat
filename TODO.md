@@ -6,4 +6,5 @@ High priority
 
 Low priority
 --------
-- *nothing*
+- Give the user some indication of how much space is left on their drive
+  before & after transfer.
