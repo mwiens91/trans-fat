@@ -92,7 +92,7 @@ def main():
                   end='\n\n')
 
     # Transfer files
-    if not args.sources:
+    if args.sources:
         # Get source and destination paths
         talk.status("Getting lists of source and destination paths",
                     args.verbose)
