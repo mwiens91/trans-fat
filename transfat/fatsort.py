@@ -93,12 +93,12 @@ def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
         elif ans > len(deviceListEnum)-1:
             talk.error("Invalid index", quiet)
             return ('', '')
-        else:
-            # Return requested device and mount location strings
-            return (deviceListSep[ans-1][0], deviceListSep[ans-1][1])
-    else:
-        # Non-interactive mode is on, just return empty strings
-        return ('', '')
+
+        # Return requested device and mount location strings
+        return (deviceListSep[ans-1][0], deviceListSep[ans-1][1])
+
+    # Non-interactive mode is on, just return empty strings
+    return ('', '')
 
 
 def unmount(deviceLocation, verbose=False):

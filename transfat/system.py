@@ -104,8 +104,8 @@ def getConfigurationFilePath():
         return configdirRC
     elif os.path.isfile(homedirRC):
         return homedirRC
-    else:
-        return os.path.dirname(transfat.config.constants.__file__) + "/config.ini"
+
+    return os.path.dirname(transfat.config.constants.__file__) + "/config.ini"
 
 
 def getExampleRCPath():
@@ -115,8 +115,6 @@ def getExampleRCPath():
 
 class ConfigPrintAction(argparse.Action):
     """Custom argparse action to print example transfatrc file."""
-    def __init__(self, option_strings, *args, **kwargs):
-        super(ConfigPrintAction, self).__init__(option_strings, *args, **kwargs)
     def __call__(self, parser, namespace, values, option_string=None):
         with open(getExampleRCPath(), 'r') as transfatrc:
             print(transfatrc.read())
