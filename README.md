@@ -15,7 +15,7 @@ Say we run
 $ transfat source drive/destination
 ```
 
-then **transfat** does some/all of the following:
+then transfat does some/all of the following:
 
 1. Filters out any unwanted .logs, .cues, etc. in `source`
 2. Converts non-MP3s from `source` to temporary MP3s
@@ -25,12 +25,13 @@ then **transfat** does some/all of the following:
 
 ## Great, how do I install this?
 
-First you need to get some dependencies. Make sure you have
-```
-fatsort ffmpeg
-```
+First you need to get some dependencies. Make sure you have `fatsort`
+and `ffmpeg`.
+
 To install transfat run
+
 ```
-pip3 install transfat
+sudo pip3 install transfat
 ```
-If you provide root access to the pip3 installation, you'll get a useful `man` page for the program.
+
+or just run the `run_transfat.py` script directly.

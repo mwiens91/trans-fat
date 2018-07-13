@@ -193,8 +193,3 @@ def main():
     talk.success("All done", args.verbose)
 
     return
-
-
-if __name__ == '__main__':
-    # This runs from the command line
-    main()
