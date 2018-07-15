@@ -28,7 +28,19 @@ then transfat does some/all of the following:
 First you need to get some dependencies. Make sure you have `fatsort`
 and `ffmpeg`.
 
-To install transfat run
+If you are on Ubuntu, install `fatsort` with
+
+```
+sudo apt install fatsort
+```
+
+Installing `ffmpeg` is done with
+
+```
+sudo apt install ffmpeg
+```
+
+Once the required dependencies are installed, install transfat using
 
 ```
 sudo pip3 install transfat
