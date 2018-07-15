@@ -34,4 +34,4 @@ To install transfat run
 sudo pip3 install transfat
 ```
 
-or just run the `run_transfat.py` script directly.
+or just run the [`run_transfat.py`](run_transfat.py) script directly.
