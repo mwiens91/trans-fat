@@ -1,3 +1,5 @@
+[![PyPI](https://img.shields.io/pypi/v/transfat.svg)](https://pypi.org/project/transfat/)
+
 # transfat
 
 ## Purpose
