@@ -27,6 +27,7 @@ setup(
     data_files=[('/usr/local/man/man1', ['man/transfat.1']),],
     packages=['transfat', 'transfat.config'],
     package_data={'transfat.config': ['config.ini', 'transfatrc']},
+    python_requires='>=3',
     entry_points={
         'console_scripts': ['transfat = transfat.main:main'],
     },
