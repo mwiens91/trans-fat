@@ -1,4 +1,6 @@
 [![PyPI](https://img.shields.io/pypi/v/transfat.svg)](https://pypi.org/project/transfat/)
+![Python version](https://img.shields.io/badge/python-3-blue.svg)
+
 
 # transfat
 
