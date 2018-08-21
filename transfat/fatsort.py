@@ -82,9 +82,8 @@ def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
         print(*deviceListEnum, sep='\n', end='\n\n')
 
         ans = int(
-                input("Drive to transfer to or abort [0-%d]: "
-                      % (len(deviceListEnum)-1))
-                 )
+            input("Drive to transfer to or abort [0-%d]: "
+                  % (len(deviceListEnum) - 1)))
 
         # Return appropriate device and mount strings
         if ans == 0:

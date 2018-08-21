@@ -27,58 +27,59 @@ def getRuntimeArguments():
     CONFIGPATH = getConfigurationFilePath()
 
     parser = argparse.ArgumentParser(
-            prog=NAME,
-            description="%(prog)s"
-                        " - transfer audio files to a FAT device"
-                        " and sort into natural order")
+        prog=NAME,
+        description=(
+            "%(prog)s"
+            " - transfer audio files to a FAT device"
+            " and sort into natural order"))
     parser.add_argument(
-            "sources",
-            nargs='*',
-            type=str,
-            help="path to source directories or files")
+        "sources",
+        nargs='*',
+        type=str,
+        help="path to source directories or files")
     parser.add_argument(
-            "destination",
-            type=str,
-            help="path to destination directory or file")
+        "destination",
+        type=str,
+        help="path to destination directory or file")
     parser.add_argument(
-            "--config-file",
-            help="use specified config file",
-            type=str,
-            default=CONFIGPATH)
+        "--config-file",
+        help="use specified config file",
+        type=str,
+        default=CONFIGPATH)
     parser.add_argument(
-            "--default",
-            help="use default settings from config file",
-            action="store_true")
+        "--default",
+        help="use default settings from config file",
+        action="store_true")
     parser.add_argument(
-            "--no-sort",
-            help="do not unmount and fatsort",
-            action="store_true")
+        "--no-sort",
+        help="do not unmount and fatsort",
+        action="store_true")
     parser.add_argument(
-            "--print-config",
-            nargs=0,
-            help='print example transfatrc and exit',
-            action=ConfigPrintAction)
+        "--print-config",
+        nargs=0,
+        help='print example transfatrc and exit',
+        action=ConfigPrintAction)
     parser.add_argument(
-            "--rename",
-            help="rename name-pattern matched directories",
-            action="store_true")
+        "--rename",
+        help="rename name-pattern matched directories",
+        action="store_true")
     parser.add_argument(
-            "--version",
-            action='version',
-            version="%(prog)s " + VERSION)
+        "--version",
+        action='version',
+        version="%(prog)s " + VERSION)
     noiseoptions = parser.add_mutually_exclusive_group()
     noiseoptions.add_argument(
-            "--verbose",
-            help="give maximal output",
-            action="store_true")
+        "--verbose",
+        help="give maximal output",
+        action="store_true")
     noiseoptions.add_argument(
-            "--quiet", "--silent",
-            help="give minimal output",
-            action="store_true")
+        "--quiet", "--silent",
+        help="give minimal output",
+        action="store_true")
     parser.add_argument(
-            "-n", "--non-interactive",
-            help="never prompt user for input",
-            action="store_true")
+        "-n", "--non-interactive",
+        help="never prompt user for input",
+        action="store_true")
 
     arguments = parser.parse_args()
 
@@ -138,9 +139,10 @@ def dependenciesAvailable(no_fatsort=False, quiet=False, verbose=False):
         A boolean signaling whether dependicies are installed.
     """
     # Check if ffmpeg is installed
-    ffmpegCheck = subprocess.Popen(["bash", "-c", "type ffmpeg"],
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL)
+    ffmpegCheck = subprocess.Popen(
+        ["bash", "-c", "type ffmpeg"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL)
     ffmpegAvailable = not ffmpegCheck.wait()
 
     if ffmpegAvailable:
@@ -276,6 +278,8 @@ def requestRootAccess(configsettings, noninteractive=False, verbose=False):
                + sys.argv
                + [os.environ])
     os.execlpe('sudo', *sudoCmd)
+
+    return True
 
 
 def abort(code):

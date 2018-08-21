@@ -152,7 +152,7 @@ def main():
         promptFlag = deleteSourceSetting - 1
 
         if (deleteSourceSetting
-           and not (args.non_interactive and promptFlag)):
+                and not (args.non_interactive and promptFlag)):
             # Remove sources
             talk.status("Removing source files and directories", args.verbose)
 

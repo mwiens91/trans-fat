@@ -42,7 +42,7 @@ def rename(targetDirectory, quiet=False):
                         # Directory name already taken! Move onto next
                         # directory.
                         talk.error("Failed to rename %s; %s already exists!"
-                                % (dir_name, targetDirectory + "/" + dir_name))
+                                   % (dir_name, targetDirectory + "/" + dir_name))
                         break
 
                 try:

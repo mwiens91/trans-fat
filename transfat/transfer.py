@@ -154,8 +154,8 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
                     # the config settings, prompting if necessary.
 
                     if ((removeOption == PROMPT
-                        and (noninteractive
-                             or talk.prompt("Move '%s'?" % file_)))
+                         and (noninteractive
+                              or talk.prompt("Move '%s'?" % file_)))
                             or removeOption == NO):
                         # Keep the file in the file list
                         break
@@ -223,7 +223,8 @@ def createDirectories(directoriesList, noninteractive=False, verbose=False,
             if os.path.isfile(targetDir):
                 # Prompt to overwrite if necessary
                 if (doprompt
-                   and talk.prompt("%s is a file. Overwrite?" % targetDir)):
+                        and talk.prompt("%s is a file. Overwrite?"
+                                        % targetDir)):
                     # Overwrite - remove the file that's in the way
                     os.remove(targetDir)
                 else:
@@ -367,8 +368,9 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
                         # Prompt and modify white/black-lists
                         # accordingly
                         if talk.prompt(
-                           "Convert %s and other %s's in the same directory?"
-                           % (oldFile, extension)):
+                                ("Convert %s and other %s's"
+                                 "in the same directory?")
+                                % (oldFile, extension)):
                             # Add to whitelist and convert
                             whitelist += [(container, extension)]
                         else:
