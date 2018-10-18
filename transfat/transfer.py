@@ -7,8 +7,9 @@ from . import talk
 from .config.constants import NO, YES, PROMPT
 
 
-def getCorrespondingPathsLists(sourcePaths, destinationPath, verbose=False,
-                               quiet=False):
+def getCorrespondingPathsLists(
+    sourcePaths, destinationPath, verbose=False, quiet=False
+):
     """Return lists of corresponding source and destination paths.
 
     Generate corresponding lists of paths for source and destination
@@ -70,13 +71,12 @@ def getCorrespondingPathsLists(sourcePaths, destinationPath, verbose=False,
             # inside of it to the appropriate lists
             for root, _, files in os.walk(source):
                 sourceDirs += [root]
-                sourceFiles += [root + '/' + file for file in files]
+                sourceFiles += [root + "/" + file for file in files]
                 destinationDirs += [destinationPath_ + root[parentlen:]]
-                destinationFiles += [destinationPath_
-                                     + root[parentlen:]
-                                     + '/'
-                                     + file
-                                     for file in files]
+                destinationFiles += [
+                    destinationPath_ + root[parentlen:] + "/" + file
+                    for file in files
+                ]
         else:
             # The source is neither a file nor directory. Give a
             # warning.
@@ -86,8 +86,9 @@ def getCorrespondingPathsLists(sourcePaths, destinationPath, verbose=False,
     return (sourceDirs, sourceFiles, destinationDirs, destinationFiles)
 
 
-def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
-                        noninteractive=False):
+def filterOutExtensions(
+    sourceFiles, destinationFiles, configsettings, noninteractive=False
+):
     """Remove indices corresponding to unwanted files from lists.
 
     Filter out files of unwanted extensions from the list of source
@@ -111,24 +112,26 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
         Nothing. The work performed on the file lists is done in place.
     """
     # Load settings from config file
-    imageOption = configsettings.getint('RemoveImages')
-    logOption = configsettings.getint('RemoveLog')
-    cueOption = configsettings.getint('RemoveCue')
-    m3uOption = configsettings.getint('RemoveM3U')
-    otherOption = configsettings.getint('RemoveOtherFiletypes')
+    imageOption = configsettings.getint("RemoveImages")
+    logOption = configsettings.getint("RemoveLog")
+    cueOption = configsettings.getint("RemoveCue")
+    m3uOption = configsettings.getint("RemoveM3U")
+    otherOption = configsettings.getint("RemoveOtherFiletypes")
 
     # Tuples of file extension types we care about
-    audioExt = ('.flac', '.alac', '.aac', '.m4a', '.mp4', '.ogg', '.mp3')
-    imageExt = ('.jpg', '.jpeg', '.bmp', '.png', '.gif')
-    logExt = ('.log',)
-    cueExt = ('.cue',)
-    m3uExt = ('.m3u',)
+    audioExt = (".flac", ".alac", ".aac", ".m4a", ".mp4", ".ogg", ".mp3")
+    imageExt = (".jpg", ".jpeg", ".bmp", ".png", ".gif")
+    logExt = (".log",)
+    cueExt = (".cue",)
+    m3uExt = (".m3u",)
 
     # Pair each file extension with its corresponding config setting
-    extensionList = [[imageExt, imageOption],
-                     [logExt, logOption],
-                     [cueExt, cueOption],
-                     [m3uExt, m3uOption]]
+    extensionList = [
+        [imageExt, imageOption],
+        [logExt, logOption],
+        [cueExt, cueOption],
+        [m3uExt, m3uOption],
+    ]
 
     # Gather all of the non-audio file extensions into one tuple
     nonAudioExt = ()
@@ -153,10 +156,12 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
                     # Extension matched! Remove the file according to
                     # the config settings, prompting if necessary.
 
-                    if ((removeOption == PROMPT
-                         and (noninteractive
-                              or talk.prompt("Move '%s'?" % file_)))
-                            or removeOption == NO):
+                    if (
+                        removeOption == PROMPT
+                        and (
+                            noninteractive or talk.prompt("Move '%s'?" % file_)
+                        )
+                    ) or removeOption == NO:
                         # Keep the file in the file list
                         break
                     else:
@@ -165,9 +170,10 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
         else:
             # This is some other kind of file. Remove the file according
             # to the config settings, prompting if necessary.
-            if ((otherOption == PROMPT
-                 and (noninteractive or talk.prompt("Move '%s'?" % file_)))
-                    or otherOption == NO):
+            if (
+                otherOption == PROMPT
+                and (noninteractive or talk.prompt("Move '%s'?" % file_))
+            ) or otherOption == NO:
                 # Keep the file in the file list
                 pass
             else:
@@ -183,8 +189,9 @@ def filterOutExtensions(sourceFiles, destinationFiles, configsettings,
     return
 
 
-def createDirectories(directoriesList, noninteractive=False, verbose=False,
-                      quiet=False):
+def createDirectories(
+    directoriesList, noninteractive=False, verbose=False, quiet=False
+):
     """Create directories specified by a list.
 
     Create all of the directories specified in a list, asking whether to
@@ -222,15 +229,17 @@ def createDirectories(directoriesList, noninteractive=False, verbose=False,
             # Check if we're attempting to overwrite a file
             if os.path.isfile(targetDir):
                 # Prompt to overwrite if necessary
-                if (doprompt
-                        and talk.prompt("%s is a file. Overwrite?"
-                                        % targetDir)):
+                if doprompt and talk.prompt(
+                    "%s is a file. Overwrite?" % targetDir
+                ):
                     # Overwrite - remove the file that's in the way
                     os.remove(targetDir)
                 else:
                     # Don't overwrite file with directory.
-                    talk.error("Attempting to overwrite a file with a"
-                               " directory!", quiet)
+                    talk.error(
+                        "Attempting to overwrite a file with a" " directory!",
+                        quiet,
+                    )
                     raise OSError("Cannot overwrite a file with a directory!")
 
             # Create directory
@@ -242,8 +251,14 @@ def createDirectories(directoriesList, noninteractive=False, verbose=False,
     return
 
 
-def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
-                      noninteractive=False, verbose=False, quiet=False):
+def convertAudioFiles(
+    sourceFiles,
+    destinationFiles,
+    configsettings,
+    noninteractive=False,
+    verbose=False,
+    quiet=False,
+):
     """Convert non-mp3 audio files to mp3.
 
     Uses FFmpeg to convert audio files with non-mp3 extensions (as
@@ -285,15 +300,15 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
     """
     # Quality setting for conversions. See:
     # https://trac.ffmpeg.org/wiki/Encode/MP3
-    QUALITY = '0'
+    QUALITY = "0"
 
     # Load extensions to convert from config file
-    flacConvert = configsettings.getint('ConvertFLACtoMP3')
-    alacConvert = configsettings.getint('ConvertALACtoMP3')
-    aacConvert = configsettings.getint('ConvertAACtoMP3')
-    m4aConvert = configsettings.getint('ConvertM4AtoMP3')
-    mp4Convert = configsettings.getint('ConvertMP4toMP3')
-    oggConvert = configsettings.getint('ConvertOGGtoMP3')
+    flacConvert = configsettings.getint("ConvertFLACtoMP3")
+    alacConvert = configsettings.getint("ConvertALACtoMP3")
+    aacConvert = configsettings.getint("ConvertAACtoMP3")
+    m4aConvert = configsettings.getint("ConvertM4AtoMP3")
+    mp4Convert = configsettings.getint("ConvertMP4toMP3")
+    oggConvert = configsettings.getint("ConvertOGGtoMP3")
 
     # Put these extensions in a list along with the option specifying
     # whether to prompt. Given that PROMPT is 2, YES is 1, and NO is 0,
@@ -301,17 +316,17 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
     extensionList = []
 
     if flacConvert:
-        extensionList += [['.flac', flacConvert - 1]]
+        extensionList += [[".flac", flacConvert - 1]]
     if alacConvert:
-        extensionList += [['.alac', alacConvert - 1]]
+        extensionList += [[".alac", alacConvert - 1]]
     if aacConvert:
-        extensionList += [['.aac', aacConvert - 1]]
+        extensionList += [[".aac", aacConvert - 1]]
     if m4aConvert:
-        extensionList += [['.m4a', m4aConvert - 1]]
+        extensionList += [[".m4a", m4aConvert - 1]]
     if mp4Convert:
-        extensionList += [['.mp4', mp4Convert - 1]]
+        extensionList += [[".mp4", mp4Convert - 1]]
     if oggConvert:
-        extensionList += [['.ogg', oggConvert - 1]]
+        extensionList += [[".ogg", oggConvert - 1]]
 
     # Make sure we don't prompt if we're in non-interactive mode
     if noninteractive:
@@ -328,11 +343,11 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
     # We need to look for files to convert. Determine how noisy FFmpeg
     # should be.
     if quiet:
-        logsetting = 'fatal'
+        logsetting = "fatal"
     elif verbose:
-        logsetting = 'info'
+        logsetting = "info"
     else:
-        logsetting = 'warning'
+        logsetting = "warning"
 
     # List of files converted
     convertedFiles = []
@@ -368,9 +383,12 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
                         # Prompt and modify white/black-lists
                         # accordingly
                         if talk.prompt(
-                                ("Convert %s and other %s's"
-                                 "in the same directory?")
-                                % (oldFile, extension)):
+                            (
+                                "Convert %s and other %s's"
+                                "in the same directory?"
+                            )
+                            % (oldFile, extension)
+                        ):
                             # Add to whitelist and convert
                             whitelist += [(container, extension)]
                         else:
@@ -381,15 +399,17 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
                 # Convert the file!
                 talk.status("Converting %s" % oldFile, verbose)
 
-                newFile = oldFile[:-len(extension)] + '.mp3'
-                command = (['ffmpeg']
-                           + ['-n']
-                           + ['-hide_banner']
-                           + ['-loglevel', logsetting]
-                           + ['-i', oldFile]
-                           + ['-codec:a', 'libmp3lame']
-                           + ['-qscale:a', QUALITY]
-                           + [newFile])
+                newFile = oldFile[: -len(extension)] + ".mp3"
+                command = (
+                    ["ffmpeg"]
+                    + ["-n"]
+                    + ["-hide_banner"]
+                    + ["-loglevel", logsetting]
+                    + ["-i", oldFile]
+                    + ["-codec:a", "libmp3lame"]
+                    + ["-qscale:a", QUALITY]
+                    + [newFile]
+                )
 
                 # Give stdin and stdout to user and wait for completion
                 convertProcess = subprocess.Popen(command)
@@ -406,7 +426,7 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
                     # converted file-name.
                     oldFileIndex = sourceFiles.index(oldFile)
                     oldDestination = destinationFiles[oldFileIndex]
-                    newDestination = oldDestination[:-len(extension)] + '.mp3'
+                    newDestination = oldDestination[: -len(extension)] + ".mp3"
 
                     sourceFiles[oldFileIndex] = newFile
                     destinationFiles[oldFileIndex] = newDestination
@@ -417,8 +437,14 @@ def convertAudioFiles(sourceFiles, destinationFiles, configsettings,
     return convertedFiles
 
 
-def copyFiles(sourceFiles, destinationFiles, configsettings,
-              noninteractive=False, verbose=False, quiet=False):
+def copyFiles(
+    sourceFiles,
+    destinationFiles,
+    configsettings,
+    noninteractive=False,
+    verbose=False,
+    quiet=False,
+):
     """Copy files from a source to a destination.
 
     Use cp with options specified in config settings to copy each source
@@ -446,21 +472,21 @@ def copyFiles(sourceFiles, destinationFiles, configsettings,
 
     # Determine whether to overwrite destination files if there's a
     # conflict
-    overwritesetting = configsettings.getint('OverwriteDestinationFiles')
+    overwritesetting = configsettings.getint("OverwriteDestinationFiles")
 
     if overwritesetting == YES:
         # cp --force
-        cpOptions += ['-f']
+        cpOptions += ["-f"]
     elif overwritesetting == PROMPT and not noninteractive:
         # cp --interactive
-        cpOptions += ['-i']
+        cpOptions += ["-i"]
     else:
         # cp --no-clobber
-        cpOptions += ['-n']
+        cpOptions += ["-n"]
 
     # Determine whether to be verbose
     if verbose:
-        cpOptions += ['-v']
+        cpOptions += ["-v"]
 
     # Copy the files to the destination directory
     for source, destination in zip(sourceFiles, destinationFiles):

@@ -56,7 +56,7 @@ def aborting():
     return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Self-test code
     error("oh mah %s!" % "god")
     aborting()

@@ -38,11 +38,15 @@ def rename(targetDirectory, quiet=False):
                 # Check if directory already exists. If it's empty, just
                 # copy into it. If non-empty, skip renaming.
                 if os.path.exists(new_name):
-                    if not (os.path.isdir(new_name) and os.listdir(new_name) == []):
+                    if not (
+                        os.path.isdir(new_name) and os.listdir(new_name) == []
+                    ):
                         # Directory name already taken! Move onto next
                         # directory.
-                        talk.error("Failed to rename %s; %s already exists!"
-                                   % (dir_name, targetDirectory + "/" + dir_name))
+                        talk.error(
+                            "Failed to rename %s; %s already exists!"
+                            % (dir_name, targetDirectory + "/" + dir_name)
+                        )
                         break
 
                 try:

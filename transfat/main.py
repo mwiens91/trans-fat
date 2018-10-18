@@ -40,9 +40,9 @@ def main():
     talk.status("Reading config file '%s'" % args.config_file, args.verbose)
 
     # This spits out an error message if there's a problem
-    cfgSettings = system.getConfigurationSettings(args.config_file,
-                                                  args.default,
-                                                  args.quiet)
+    cfgSettings = system.getConfigurationSettings(
+        args.config_file, args.default, args.quiet
+    )
     if not cfgSettings:
         # Failure
         system.abort(1)
@@ -55,9 +55,9 @@ def main():
     if not args.no_sort:
         talk.status("Checking root access", args.verbose)
 
-        rootAccess = system.requestRootAccess(cfgSettings,
-                                              args.non_interactive,
-                                              args.verbose)
+        rootAccess = system.requestRootAccess(
+            cfgSettings, args.non_interactive, args.verbose
+        )
         if not rootAccess:
             # Failed to run as root
             talk.error("Failed to run as root!", args.quiet)
@@ -72,69 +72,88 @@ def main():
 
     # Find device and mount location corresponding to provided
     # destination
-    talk.status("Finding device and mount locations containing '%s'"
-                % args.destination, args.verbose)
+    talk.status(
+        "Finding device and mount locations containing '%s'"
+        % args.destination,
+        args.verbose,
+    )
 
     # This function returns empty strings if it failed
-    devLoc, mntLoc = fatsort.findDeviceLocations(args.destination,
-                                                 args.non_interactive,
-                                                 args.verbose,
-                                                 args.quiet)
-    if devLoc == '':
+    devLoc, mntLoc = fatsort.findDeviceLocations(
+        args.destination, args.non_interactive, args.verbose, args.quiet
+    )
+    if devLoc == "":
         # Failure
         talk.error("no FAT device found!", args.quiet)
         system.abort(1)
     else:
         # Success, print the devices
         if args.verbose:
-            print("Success\n\nFound device and mount locations:"
-                  "\ndevice: %s\nmount: %s" % (devLoc, mntLoc),
-                  end='\n\n')
+            print(
+                "Success\n\nFound device and mount locations:"
+                "\ndevice: %s\nmount: %s" % (devLoc, mntLoc),
+                end="\n\n",
+            )
 
     # Transfer files
     if args.sources:
         # Get source and destination paths
-        talk.status("Getting lists of source and destination paths",
-                    args.verbose)
+        talk.status(
+            "Getting lists of source and destination paths", args.verbose
+        )
 
-        _, fromFiles, toDirs, toFiles = (
-            transfer.getCorrespondingPathsLists(args.sources, args.destination,
-                                                args.verbose, args.quiet))
+        _, fromFiles, toDirs, toFiles = transfer.getCorrespondingPathsLists(
+            args.sources, args.destination, args.verbose, args.quiet
+        )
 
         talk.success("Source and destination locations found", args.verbose)
 
         # Filter out certain file types based on settings in config file
         talk.status("Filtering out unwanted file types", args.verbose)
 
-        transfer.filterOutExtensions(fromFiles, toFiles, cfgSettings,
-                                     args.non_interactive)
+        transfer.filterOutExtensions(
+            fromFiles, toFiles, cfgSettings, args.non_interactive
+        )
 
         talk.success("Filtering complete", args.verbose)
 
         # Perform necessary audio file conversions
-        talk.status("Starting to convert any audio files that need it",
-                    args.verbose)
+        talk.status(
+            "Starting to convert any audio files that need it", args.verbose
+        )
 
         # Returns a list of temporary files to remove later
-        tmpFiles = transfer.convertAudioFiles(fromFiles, toFiles, cfgSettings,
-                                              args.non_interactive,
-                                              args.verbose, args.quiet)
+        tmpFiles = transfer.convertAudioFiles(
+            fromFiles,
+            toFiles,
+            cfgSettings,
+            args.non_interactive,
+            args.verbose,
+            args.quiet,
+        )
 
         talk.success("Conversions finished", args.verbose)
 
         # Create necessary directories to transfer to
         talk.status("Creating destination directories", args.verbose)
 
-        transfer.createDirectories(toDirs, args.non_interactive, args.verbose,
-                                   args.quiet)
+        transfer.createDirectories(
+            toDirs, args.non_interactive, args.verbose, args.quiet
+        )
 
         talk.success("Destination directories created", args.verbose)
 
         # Copy source files to destination
         talk.status("Copying files", args.verbose)
 
-        transfer.copyFiles(fromFiles, toFiles, cfgSettings, args.non_interactive,
-                           args.verbose, args.quiet)
+        transfer.copyFiles(
+            fromFiles,
+            toFiles,
+            cfgSettings,
+            args.non_interactive,
+            args.verbose,
+            args.quiet,
+        )
 
         talk.success("Files copied", args.verbose)
 
@@ -151,18 +170,18 @@ def main():
         deleteSourceSetting = cfgSettings.getint("DeleteSources")
         promptFlag = deleteSourceSetting - 1
 
-        if (deleteSourceSetting
-                and not (args.non_interactive and promptFlag)):
+        if deleteSourceSetting and not (args.non_interactive and promptFlag):
             # Remove sources
             talk.status("Removing source files and directories", args.verbose)
 
-            transfer.deletePaths(args.sources, promptFlag, args.verbose,
-                                 args.quiet)
+            transfer.deletePaths(
+                args.sources, promptFlag, args.verbose, args.quiet
+            )
 
             talk.success("source files and directories removed", args.verbose)
 
     # If renaming directories, do so
-    if args.rename or cfgSettings.getint('RenameByDefault'):
+    if args.rename or cfgSettings.getint("RenameByDefault"):
         talk.status("Renaming any matching directories", args.verbose)
 
         rename.rename(mntLoc, args.quiet)

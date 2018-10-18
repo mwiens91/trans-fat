@@ -1,5 +1,6 @@
 [![PyPI](https://img.shields.io/pypi/v/transfat.svg)](https://pypi.org/project/transfat/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/transfat.svg)](https://pypi.org/project/transfat/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 
 # transfat

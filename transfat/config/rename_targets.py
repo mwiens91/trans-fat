@@ -9,9 +9,12 @@ https://docs.python.org/3/library/re.html#re-objects.
 name_patterns = [
     # Above and Beyond - Group Therapy
     # example: Above and Beyond - Group Therapy 190 (2016-07-15) (Vyze) -> ABGT_190
-    [r'(Above and Beyond)(.+)(\(Vyze\))', r'.*\s(\d{3})\s.*', r'ABGT_\1'],
-
+    [r"(Above and Beyond)(.+)(\(Vyze\))", r".*\s(\d{3})\s.*", r"ABGT_\1"],
     # Armin van Buuren - A State of Trance
     # example: Armin van Buuren - A State Of Trance 826 (10.08.2017) SBD Split Tracks -> ASOT_826
-    [r'(Armin van Buuren)(.+)(SBD Split Tracks)', r'.*\s(\d{3}(?:\.\d)?)\s.*', r'ASOT_\1'],
+    [
+        r"(Armin van Buuren)(.+)(SBD Split Tracks)",
+        r".*\s(\d{3}(?:\.\d)?)\s.*",
+        r"ASOT_\1",
+    ],
 ]

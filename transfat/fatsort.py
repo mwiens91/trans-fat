@@ -5,8 +5,9 @@ import subprocess
 from . import talk
 
 
-def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
-                        quiet=False):
+def findDeviceLocations(
+    destinationPath, noninteractive=False, verbose=False, quiet=False
+):
     """Return device and mount locations of a FAT drive.
 
     Find device and mount locations of the FAT device corresponding to
@@ -35,20 +36,21 @@ def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
 
     # Get list of FAT devices
     bashListCmd = "mount -t vfat | cut -f 1,3 -d ' '"
-    deviceListProcess = subprocess.Popen(["bash", "-c", bashListCmd],
-                                         stdout=subprocess.PIPE)
+    deviceListProcess = subprocess.Popen(
+        ["bash", "-c", bashListCmd], stdout=subprocess.PIPE
+    )
 
     # Read the devices list from Popen
-    deviceString = deviceListProcess.communicate()[0].decode('ascii')
+    deviceString = deviceListProcess.communicate()[0].decode("ascii")
     deviceString = deviceString.rstrip()
 
     # Check if any FAT devices were found
-    if deviceString == '':
+    if deviceString == "":
         # No FAT devices found, return empty string
-        return ('', '')
+        return ("", "")
 
     # Split deviceString so we get a separate string for each device
-    deviceList = deviceString.split('\n')
+    deviceList = deviceString.split("\n")
 
     # For each device, split into device location and mount location.
     # So in deviceListSep, deviceListSep[i][0] gives the device location
@@ -70,44 +72,50 @@ def findDeviceLocations(destinationPath, noninteractive=False, verbose=False,
     # empty strings
     if not noninteractive:
         # Enumerate each device
-        deviceListEnum = ["[%d] %s" % (i, deviceList[i-1])
-                          for i in range(1, len(deviceList)+1)]
+        deviceListEnum = [
+            "[%d] %s" % (i, deviceList[i - 1])
+            for i in range(1, len(deviceList) + 1)
+        ]
 
         # Add option to abort
         deviceListEnum.insert(0, "[0] abort!")
 
         # Prompt user for which device to use
         talk.status("Failed to find device automatically!", verbose)
-        print("Mounted FAT devices:", end='\n\n')
-        print(*deviceListEnum, sep='\n', end='\n\n')
+        print("Mounted FAT devices:", end="\n\n")
+        print(*deviceListEnum, sep="\n", end="\n\n")
 
         ans = int(
-            input("Drive to transfer to or abort [0-%d]: "
-                  % (len(deviceListEnum) - 1)))
+            input(
+                "Drive to transfer to or abort [0-%d]: "
+                % (len(deviceListEnum) - 1)
+            )
+        )
 
         # Return appropriate device and mount strings
         if ans == 0:
             # User selected abort, so return empty strings
-            return ('', '')
-        elif ans > len(deviceListEnum)-1:
+            return ("", "")
+        elif ans > len(deviceListEnum) - 1:
             talk.error("Invalid index", quiet)
-            return ('', '')
+            return ("", "")
 
         # Return requested device and mount location strings
-        return (deviceListSep[ans-1][0], deviceListSep[ans-1][1])
+        return (deviceListSep[ans - 1][0], deviceListSep[ans - 1][1])
 
     # Non-interactive mode is on, just return empty strings
-    return ('', '')
+    return ("", "")
 
 
 def unmount(deviceLocation, verbose=False):
     """Unmount a device and return whether it was successful."""
     noiseLevel = []
     if verbose:
-        noiseLevel += ['-v']
+        noiseLevel += ["-v"]
 
-    exitCode = subprocess.Popen(['sudo', 'umount', deviceLocation]
-                                + noiseLevel).wait()
+    exitCode = subprocess.Popen(
+        ["sudo", "umount", deviceLocation] + noiseLevel
+    ).wait()
     return bool(not exitCode)
 
 
@@ -115,8 +123,9 @@ def fatsort(deviceLocation, quiet=False):
     """fatsort a device and return whether it was successful."""
     noiseLevel = []
     if quiet:
-        noiseLevel += ['-q']
+        noiseLevel += ["-q"]
 
-    exitCode = subprocess.Popen(['sudo', 'fatsort', deviceLocation]
-                                + noiseLevel).wait()
+    exitCode = subprocess.Popen(
+        ["sudo", "fatsort", deviceLocation] + noiseLevel
+    ).wait()
     return bool(not exitCode)
